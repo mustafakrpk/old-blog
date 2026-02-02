@@ -2,63 +2,160 @@
 @tailwind components;
 @tailwind utilities;
 
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
 
 html,
 body {
-	/* height: 100%; */
-	background-color: #0F0F0F;
-	::-webkit-scrollbar {
-		width: 10px;
-	}
-
-	::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	::-webkit-scrollbar-thumb {
-		background: #545454;
-		border-radius: 10px;
-
-
-	}
-
-	::-webkit-scrollbar-thumb:hover {
-		background: #fff;
-	}
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	background-color: #000000;
+	color: #ffffff;
+	font-family: "Inter", system-ui, -apple-system, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
-.flex-grow::-webkit-scrollbar {
+#root {
+	height: 100%;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+	width: 8px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.15);
+	border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.3);
+}
+
+/* Hide scrollbar utility */
+.scroll-hide::-webkit-scrollbar {
 	display: none;
 }
 
-.settings-icon {
-	transition: transform 1000ms ease;
-}
-
-.settings-icon:hover {
-	transform: rotate(360deg);
-}
-.tiptap p.is-editor-empty:first-child::before {
-  color: #adb5bd;
-  content: "Write something ....";
-  float: left;
-  height: 0;
-  pointer-events: none;
-}
-
-.scroll-hide::-webkit-scrollbar {
-  display: none;
-}
-
 .scroll-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
 }
 
-.shadow-inner {
-	box-shadow: inset 0 1px 2px rgba(243, 242, 242, 0.1);
+/* Force graph canvas cursor */
+.force-graph-container canvas {
+	cursor: grab;
 }
 
-.shadow-outer {
-	box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
+.force-graph-container canvas:active {
+	cursor: grabbing;
+}
+
+/* ── Markdown prose styling for ContentPanel ── */
+.prose-custom {
+	color: rgba(255, 255, 255, 0.7);
+	line-height: 1.75;
+	font-size: 0.925rem;
+}
+
+.prose-custom h1 {
+	display: none; /* Title already shown above */
+}
+
+.prose-custom h2 {
+	color: rgba(255, 255, 255, 0.85);
+	font-size: 1.2rem;
+	font-weight: 600;
+	margin-top: 2rem;
+	margin-bottom: 0.75rem;
+}
+
+.prose-custom h3 {
+	color: rgba(255, 255, 255, 0.8);
+	font-size: 1.05rem;
+	font-weight: 600;
+	margin-top: 1.5rem;
+	margin-bottom: 0.5rem;
+}
+
+.prose-custom p {
+	margin-bottom: 1rem;
+}
+
+.prose-custom strong {
+	color: rgba(255, 255, 255, 0.9);
+	font-weight: 600;
+}
+
+.prose-custom a {
+	color: #6366f1;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.prose-custom a:hover {
+	color: #818cf8;
+}
+
+.prose-custom ul,
+.prose-custom ol {
+	padding-left: 1.5rem;
+	margin-bottom: 1rem;
+}
+
+.prose-custom li {
+	margin-bottom: 0.35rem;
+}
+
+.prose-custom code {
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 4px;
+	padding: 0.15rem 0.4rem;
+	font-size: 0.85em;
+	font-family: "JetBrains Mono", "Fira Code", monospace;
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.prose-custom pre {
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid rgba(255, 255, 255, 0.06);
+	border-radius: 8px;
+	padding: 1rem 1.25rem;
+	margin-bottom: 1.25rem;
+	overflow-x: auto;
+}
+
+.prose-custom pre code {
+	background: none;
+	border: none;
+	padding: 0;
+	font-size: 0.85rem;
+	line-height: 1.6;
+	color: rgba(255, 255, 255, 0.75);
+}
+
+.prose-custom hr {
+	border: none;
+	height: 1px;
+	background: rgba(255, 255, 255, 0.06);
+	margin: 2rem 0;
+}
+
+.prose-custom blockquote {
+	border-left: 3px solid rgba(255, 255, 255, 0.15);
+	padding-left: 1rem;
+	color: rgba(255, 255, 255, 0.5);
+	font-style: italic;
+	margin-bottom: 1rem;
 }
