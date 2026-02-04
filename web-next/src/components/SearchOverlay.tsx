@@ -1,12 +1,18 @@
+"use client"
+
 import { useState, useMemo, useRef, useEffect, useCallback } from "react"
-import { TYPE_COLORS, type ContentNode } from "../data/contentData"
+import { TYPE_COLORS } from "@/lib/constants"
+import type { GraphNode } from "@/lib/types"
 
 interface SearchOverlayProps {
-	nodes: ContentNode[]
+	nodes: GraphNode[]
 	onSelectNode: (nodeId: string) => void
 }
 
-export default function SearchOverlay({ nodes, onSelectNode }: SearchOverlayProps) {
+export default function SearchOverlay({
+	nodes,
+	onSelectNode,
+}: SearchOverlayProps) {
 	const [query, setQuery] = useState("")
 	const [isFocused, setIsFocused] = useState(false)
 	const inputRef = useRef<HTMLInputElement>(null)
@@ -19,8 +25,10 @@ export default function SearchOverlay({ nodes, onSelectNode }: SearchOverlayProp
 			.filter(
 				(n) =>
 					n.title.toLowerCase().includes(q) ||
-					n.description.toLowerCase().includes(q) ||
-					n.tags?.some((t) => t.toLowerCase().includes(q)),
+					n.meta?.description?.toLowerCase().includes(q) ||
+					n.meta?.tags?.some((t) =>
+						t.toLowerCase().includes(q),
+					),
 			)
 			.slice(0, 8)
 	}, [query, nodes])
@@ -84,7 +92,6 @@ export default function SearchOverlay({ nodes, onSelectNode }: SearchOverlayProp
 			ref={containerRef}
 			className="fixed top-[12%] left-1/2 -translate-x-1/2 z-30 w-full max-w-lg px-4"
 		>
-			{/* Search container */}
 			<div
 				className={`
 					relative backdrop-blur-2xl rounded-2xl
@@ -96,7 +103,6 @@ export default function SearchOverlay({ nodes, onSelectNode }: SearchOverlayProp
 					}
 				`}
 			>
-				{/* Input row */}
 				<div className="flex items-center px-5 py-3.5">
 					<svg
 						className="w-4 h-4 text-white/40 flex-shrink-0"
@@ -143,22 +149,34 @@ export default function SearchOverlay({ nodes, onSelectNode }: SearchOverlayProp
 							}}
 							className="ml-2 text-white/30 hover:text-white/60 transition-colors"
 						>
-							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+							<svg
+								className="w-4 h-4"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M6 18L18 6M6 6l12 12"
+								/>
 							</svg>
 						</button>
 					)}
 				</div>
 
-				{/* Results dropdown */}
 				{showResults && (
 					<div className="border-t border-white/10 px-2 py-2 max-h-72 overflow-y-auto">
 						{filteredNodes.map((node) => {
-							const color = TYPE_COLORS[node.type]
+							const color =
+								TYPE_COLORS[node.type] || "#fff"
 							return (
 								<button
 									key={node.id}
-									onClick={() => handleSelect(node.id)}
+									onClick={() =>
+										handleSelect(node.id)
+									}
 									className="
 										w-full flex items-center gap-3 px-3 py-2.5
 										rounded-xl text-left
@@ -167,20 +185,24 @@ export default function SearchOverlay({ nodes, onSelectNode }: SearchOverlayProp
 								>
 									<span
 										className="w-2 h-2 rounded-full flex-shrink-0"
-										style={{ backgroundColor: color }}
+										style={{
+											backgroundColor: color,
+										}}
 									/>
 									<div className="flex-1 min-w-0">
 										<span className="text-white/80 text-sm font-medium block truncate">
 											{node.title}
 										</span>
 										<span className="text-white/30 text-xs truncate block">
-											{node.description}
+											{node.meta?.description ||
+												""}
 										</span>
 									</div>
 									<span
 										className="text-xs px-1.5 py-0.5 rounded-md flex-shrink-0"
 										style={{
-											backgroundColor: color + "18",
+											backgroundColor:
+												color + "18",
 											color: color,
 										}}
 									>
@@ -193,7 +215,6 @@ export default function SearchOverlay({ nodes, onSelectNode }: SearchOverlayProp
 				)}
 			</div>
 
-			{/* Hint */}
 			{!isFocused && !query && (
 				<p className="text-center text-white/15 text-xs mt-3 select-none">
 					Click a node or search to explore
