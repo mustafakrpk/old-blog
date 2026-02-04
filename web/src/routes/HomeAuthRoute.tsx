@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react"
 import KnowledgeGraph from "../components/KnowledgeGraph"
 import type { GraphNode } from "../components/KnowledgeGraph"
 import SearchOverlay from "../components/SearchOverlay"
-import ContentPanel from "../components/ContentPanel"
+import MaterializeOverlay from "../components/MaterializeOverlay"
 
 const API_URL = "http://localhost:3000/api/graph"
 
@@ -48,6 +48,7 @@ function apiNodeToGraphNode(n: ApiNode): GraphNode {
 export default function HomeAuthRoute() {
 	const [focusNodeId, setFocusNodeId] = useState<string | null>(null)
 	const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
+	const [originPos, setOriginPos] = useState<{ x: number; y: number } | null>(null)
 	const [nodes, setNodes] = useState<GraphNode[]>([])
 	const [links, setLinks] = useState<Array<{ source: string; target: string }>>([])
 	const [loading, setLoading] = useState(true)
@@ -75,6 +76,10 @@ export default function HomeAuthRoute() {
 			const node = nodes.find((n) => n.id === nodeId)
 			if (node) {
 				setTimeout(() => {
+					setOriginPos({
+						x: window.innerWidth / 2,
+						y: window.innerHeight / 2,
+					})
 					setSelectedNode(node)
 				}, 600)
 			}
@@ -82,12 +87,17 @@ export default function HomeAuthRoute() {
 		[nodes],
 	)
 
-	const handleNodeClick = useCallback((node: GraphNode) => {
-		setSelectedNode(node)
-	}, [])
+	const handleNodeClick = useCallback(
+		(node: GraphNode, screenPos: { x: number; y: number }) => {
+			setOriginPos(screenPos)
+			setSelectedNode(node)
+		},
+		[],
+	)
 
 	const handleClosePanel = useCallback(() => {
 		setSelectedNode(null)
+		setOriginPos(null)
 	}, [])
 
 	if (loading) {
@@ -119,8 +129,12 @@ export default function HomeAuthRoute() {
 			{/* Search overlay */}
 			<SearchOverlay nodes={nodes} onSelectNode={handleSelectNode} />
 
-			{/* Content panel */}
-			<ContentPanel node={selectedNode} onClose={handleClosePanel} />
+			{/* Content overlay */}
+			<MaterializeOverlay
+				node={selectedNode}
+				originPos={originPos}
+				onClose={handleClosePanel}
+			/>
 
 			{/* Bottom-right branding */}
 			<div className="fixed bottom-5 right-5 z-30 select-none">

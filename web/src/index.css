@@ -159,3 +159,255 @@ body {
 	font-style: italic;
 	margin-bottom: 1rem;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Digital Materialization — Utopian Synthetic Transition
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Layer 1: Blur Backdrop (z-39) ──────────────────────────────── */
+
+@keyframes dm-blur-in {
+	from {
+		backdrop-filter: blur(0px);
+		-webkit-backdrop-filter: blur(0px);
+		background: transparent;
+	}
+	to {
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		background: rgba(0, 0, 17, 0.2);
+	}
+}
+
+@keyframes dm-blur-out {
+	from {
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		background: rgba(0, 0, 17, 0.2);
+	}
+	to {
+		backdrop-filter: blur(0px);
+		-webkit-backdrop-filter: blur(0px);
+		background: transparent;
+	}
+}
+
+.dm-blur-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 39;
+	backdrop-filter: blur(0px);
+	-webkit-backdrop-filter: blur(0px);
+	animation: dm-blur-in 500ms ease-out 300ms forwards;
+	pointer-events: none;
+}
+
+.dm-blur-backdrop.dm-exit {
+	animation: dm-blur-out 400ms ease-in 150ms forwards;
+}
+
+/* ── Layer 2: Vignette with glow pulse (z-40) ──────────────────── */
+
+@keyframes dm-vignette-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes dm-vignette-out {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
+
+@keyframes dm-glow-pulse {
+	0% {
+		transform: translate(-50%, -50%) scale(0);
+		opacity: 0.9;
+	}
+	40% {
+		opacity: 1;
+	}
+	100% {
+		transform: translate(-50%, -50%) scale(4);
+		opacity: 0;
+	}
+}
+
+.dm-vignette {
+	position: fixed;
+	inset: 0;
+	z-index: 40;
+	pointer-events: none;
+	background: radial-gradient(
+		circle at var(--dm-origin-x) var(--dm-origin-y),
+		transparent 0%,
+		rgba(0, 0, 17, 0.25) 25%,
+		rgba(0, 0, 17, 0.75) 100%
+	);
+	opacity: 0;
+	animation: dm-vignette-in 400ms ease-out forwards;
+}
+
+.dm-vignette::after {
+	content: '';
+	position: absolute;
+	left: var(--dm-origin-x);
+	top: var(--dm-origin-y);
+	width: 80px;
+	height: 80px;
+	border-radius: 50%;
+	background: radial-gradient(circle, var(--dm-accent), transparent 70%);
+	animation: dm-glow-pulse 700ms ease-out forwards;
+	pointer-events: none;
+}
+
+.dm-vignette.dm-exit {
+	animation: dm-vignette-out 300ms ease-in 200ms forwards;
+}
+
+.dm-vignette.dm-exit::after {
+	display: none;
+}
+
+/* ── Layer 3: Expanding circle container (z-50) ────────────────── */
+
+@keyframes dm-circle-expand {
+	from {
+		clip-path: circle(0% at var(--dm-origin-x) var(--dm-origin-y));
+	}
+	to {
+		clip-path: circle(150% at var(--dm-origin-x) var(--dm-origin-y));
+	}
+}
+
+@keyframes dm-circle-contract {
+	from {
+		clip-path: circle(150% at var(--dm-origin-x) var(--dm-origin-y));
+	}
+	to {
+		clip-path: circle(0% at var(--dm-origin-x) var(--dm-origin-y));
+	}
+}
+
+@keyframes dm-ring-expand {
+	0% {
+		transform: translate(-50%, -50%) scale(0);
+		opacity: 1;
+		border-width: 2px;
+	}
+	100% {
+		transform: translate(-50%, -50%) scale(12);
+		opacity: 0;
+		border-width: 0.5px;
+	}
+}
+
+@keyframes dm-scanline {
+	0% {
+		top: var(--dm-origin-y);
+		opacity: 0.5;
+	}
+	50% {
+		opacity: 0.3;
+	}
+	100% {
+		top: 100%;
+		opacity: 0;
+	}
+}
+
+.dm-circle {
+	position: fixed;
+	inset: 0;
+	z-index: 50;
+	background: linear-gradient(
+		180deg,
+		rgba(8, 8, 18, 0.98) 0%,
+		rgba(12, 12, 22, 0.99) 50%,
+		rgba(8, 8, 16, 0.98) 100%
+	);
+	clip-path: circle(0% at var(--dm-origin-x) var(--dm-origin-y));
+	animation: dm-circle-expand 550ms cubic-bezier(0.16, 1, 0.3, 1) 350ms forwards;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+/* Ring decoration */
+.dm-circle::before {
+	content: '';
+	position: fixed;
+	left: var(--dm-origin-x);
+	top: var(--dm-origin-y);
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	border: 2px solid var(--dm-accent);
+	box-shadow: 0 0 30px var(--dm-accent),
+	            inset 0 0 15px var(--dm-accent);
+	animation: dm-ring-expand 800ms cubic-bezier(0.16, 1, 0.3, 1) 300ms forwards;
+	pointer-events: none;
+	opacity: 0;
+	animation-fill-mode: forwards;
+}
+
+/* Scan-line decoration */
+.dm-circle::after {
+	content: '';
+	position: fixed;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: linear-gradient(90deg, transparent 5%, var(--dm-accent), transparent 95%);
+	box-shadow: 0 0 15px var(--dm-accent), 0 0 30px var(--dm-accent);
+	animation: dm-scanline 900ms ease-out 500ms forwards;
+	pointer-events: none;
+	opacity: 0;
+	z-index: 51;
+}
+
+.dm-circle.dm-exit {
+	clip-path: circle(150% at var(--dm-origin-x) var(--dm-origin-y));
+	animation: dm-circle-contract 450ms cubic-bezier(0.7, 0, 0.84, 0) 100ms forwards;
+}
+
+.dm-circle.dm-exit::before,
+.dm-circle.dm-exit::after {
+	display: none;
+}
+
+/* ── Layer 4: Content elements — staggered materialize ─────────── */
+
+@keyframes dm-materialize {
+	from {
+		opacity: 0;
+		transform: translateY(18px);
+		filter: blur(4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+		filter: blur(0);
+	}
+}
+
+@keyframes dm-dematerialize {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+		filter: blur(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(8px);
+		filter: blur(4px);
+	}
+}
+
+.dm-content-item {
+	opacity: 0;
+	animation: dm-materialize 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dm-content-item.dm-exit {
+	animation: dm-dematerialize 200ms ease-in forwards !important;
+	animation-delay: 0ms !important;
+}

@@ -17,7 +17,7 @@ export type { GraphNode }
 interface KnowledgeGraphProps {
 	nodes: GraphNode[]
 	links: Array<{ source: string; target: string }>
-	onNodeClick?: (node: GraphNode) => void
+	onNodeClick?: (node: GraphNode, screenPos: { x: number; y: number }) => void
 	focusNodeId?: string | null
 }
 
@@ -154,6 +154,13 @@ export default function KnowledgeGraph({
 
 	const handleNodeClick = useCallback(
 		(node: any) => {
+			// Capture screen position BEFORE camera moves
+			const screenPos = graphRef.current?.graph2ScreenCoords(
+				node.x,
+				node.y,
+				node.z || 0,
+			) ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+
 			const distance = 60
 			const distRatio =
 				1 + distance / Math.hypot(node.x, node.y, node.z || 0)
@@ -166,7 +173,7 @@ export default function KnowledgeGraph({
 				{ x: node.x, y: node.y, z: node.z || 0 },
 				800,
 			)
-			onNodeClick?.(node as GraphNode)
+			onNodeClick?.(node as GraphNode, screenPos)
 		},
 		[onNodeClick],
 	)
