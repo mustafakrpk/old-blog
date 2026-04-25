@@ -1,7 +1,15 @@
 "use server"
 
 import { db } from "@/db"
-import { nodes, links, type NewNode, type Node } from "@/db/schema"
+import {
+	nodes,
+	links,
+	nodeTypeEnum,
+	clusterEnum,
+	visibilityEnum,
+	type NewNode,
+	type Node,
+} from "@/db/schema"
 import { eq, like, and, count, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
@@ -36,18 +44,31 @@ export async function getDashboardStats() {
 	const [linkCount] = await db
 		.select({ count: count() })
 		.from(links)
-	const byType = await db
+	const byTypeRaw = await db
 		.select({ type: nodes.type, count: count() })
 		.from(nodes)
 		.groupBy(nodes.type)
-	const byCluster = await db
+	const byClusterRaw = await db
 		.select({ cluster: nodes.cluster, count: count() })
 		.from(nodes)
 		.groupBy(nodes.cluster)
-	const byVisibility = await db
+	const byVisibilityRaw = await db
 		.select({ visibility: nodes.visibility, count: count() })
 		.from(nodes)
 		.groupBy(nodes.visibility)
+
+	const byType = nodeTypeEnum.enumValues.map((type) => ({
+		type,
+		count: byTypeRaw.find((r) => r.type === type)?.count ?? 0,
+	}))
+	const byCluster = clusterEnum.enumValues.map((cluster) => ({
+		cluster,
+		count: byClusterRaw.find((r) => r.cluster === cluster)?.count ?? 0,
+	}))
+	const byVisibility = visibilityEnum.enumValues.map((visibility) => ({
+		visibility,
+		count: byVisibilityRaw.find((r) => r.visibility === visibility)?.count ?? 0,
+	}))
 
 	return {
 		nodeCount: nodeCount.count,

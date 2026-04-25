@@ -23,6 +23,8 @@ body {
 	font-family: "Inter", system-ui, -apple-system, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	/* Tell the browser to render native UI (select options, scrollbars, date pickers) in dark mode */
+	color-scheme: dark;
 }
 
 /* ── Scrollbar ─────────────────────────────────────── */
@@ -46,6 +48,17 @@ body {
 .scroll-hide {
 	-ms-overflow-style: none;
 	scrollbar-width: none;
+}
+
+/* ── Native select dropdown options ────────────────── */
+/* color-scheme: dark (above) handles most browsers. These rules are a belt-and-braces fallback. */
+select option {
+	background-color: #0a0a14 !important;
+	color: rgba(255, 255, 255, 0.85) !important;
+}
+select option:checked {
+	background: #1a1a2e linear-gradient(0deg, #1a1a2e, #1a1a2e) !important;
+	color: #ffffff !important;
 }
 
 /* ── Force Graph canvas ────────────────────────────── */
