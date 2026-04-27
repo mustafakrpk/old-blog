@@ -115,8 +115,9 @@ rm -rf /var/www/vhosts/xn--mustafakrpk-6zbc.com/httpdocs/*
 cp -r dist/* /var/www/vhosts/xn--mustafakrpk-6zbc.com/httpdocs/
 
 # Permission'ları düzelt
-chown mustafa:psaserv /var/www/vhosts/xn--mustafakrpk-6zbc.com/httpdocs/
-chown -R mustafa:psacln /var/www/vhosts/xn--mustafakrpk-6zbc.com/httpdocs/*
+# ÖNEMLİ: Plesk'te klasörler psaserv group'unda, dosyalar psacln'de olmalı
+find /var/www/vhosts/xn--mustafakrpk-6zbc.com/httpdocs/ -type d -exec chown mustafa:psaserv {} \;
+find /var/www/vhosts/xn--mustafakrpk-6zbc.com/httpdocs/ -type f -exec chown mustafa:psacln {} \;
 find /var/www/vhosts/xn--mustafakrpk-6zbc.com/httpdocs/ -type d -exec chmod 750 {} \;
 find /var/www/vhosts/xn--mustafakrpk-6zbc.com/httpdocs/ -type f -exec chmod 644 {} \;
 ```
@@ -190,8 +191,9 @@ echo "→ Deploy front to httpdocs..."
 HTTPDOCS=/var/www/vhosts/xn--mustafakrpk-6zbc.com/httpdocs
 rm -rf $HTTPDOCS/*
 cp -r dist/* $HTTPDOCS/
-chown mustafa:psaserv $HTTPDOCS
-chown -R mustafa:psacln $HTTPDOCS/*
+# Klasörler psaserv group, dosyalar psacln group (Plesk standardı)
+find $HTTPDOCS -type d -exec chown mustafa:psaserv {} \;
+find $HTTPDOCS -type f -exec chown mustafa:psacln {} \;
 find $HTTPDOCS -type d -exec chmod 750 {} \;
 find $HTTPDOCS -type f -exec chmod 644 {} \;
 
