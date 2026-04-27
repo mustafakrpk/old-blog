@@ -4,7 +4,8 @@ import type { GraphNode } from "../components/KnowledgeGraph"
 import SearchOverlay from "../components/SearchOverlay"
 import MaterializeOverlay from "../components/MaterializeOverlay"
 
-const API_URL = "http://localhost:3000/api/graph"
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000"
+const API_URL = `${API_BASE}/api/graph`
 
 interface ApiNode {
 	id: string
