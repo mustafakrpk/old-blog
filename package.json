@@ -1,17 +1,17 @@
 {
   "name": "learn-anything",
   "scripts": {
-    "dev": "bun run web",
-    "web": "cd web && bun dev",
+    "dev": "bun run front",
+  "front": "cd front && bun dev",
+    "back": "cd back && bun dev",
+
     "setup": "bun cmd.ts setup",
     "seed": "bun --watch cli/seed.ts",
     "cli": "bun --watch cli/run.ts",
     "state": "bun --watch cmd.ts jazz-state",
     "edgedb:migrate": "edgedb migration create && edgedb migration apply && npx @edgedb/generate edgeql-js"
   },
-  "workspaces": [
-    "web"
-  ],
+  "workspaces":["front"],
   "dependencies": {
     "jazz-nodejs": "^0.7.11",
     "react": "^18.3.1",
