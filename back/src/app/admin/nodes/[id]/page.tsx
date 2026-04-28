@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation"
 import { getNodeById, updateNode, deleteNode } from "@/actions/admin"
 import type { Node } from "@/db/schema"
 import NodeForm from "../node-form"
+import NodeLinks from "./node-links"
 
 export default function EditNodePage() {
 	const router = useRouter()
@@ -82,6 +83,10 @@ export default function EditNodePage() {
 			</div>
 
 			<NodeForm initialData={node} onSave={handleSave} saving={saving} />
+
+			<div className="mt-5">
+				<NodeLinks nodeId={nodeId} />
+			</div>
 		</div>
 	)
 }

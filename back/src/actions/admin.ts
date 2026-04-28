@@ -10,7 +10,7 @@ import {
 	type NewNode,
 	type Node,
 } from "@/db/schema"
-import { eq, like, and, count, sql } from "drizzle-orm"
+import { eq, like, and, count, sql, asc, ne } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
 import { verifyAdminPassword, createSessionToken } from "@/lib/auth"
@@ -117,15 +117,50 @@ export async function getNodeById(id: string) {
 }
 
 export async function getNodeLinks(nodeId: string) {
-	const sourceLinks = await db
-		.select()
+	// Outgoing: bu node'dan başka node'lara giden bağlantılar
+	const outgoing = await db
+		.select({
+			source: links.source,
+			target: links.target,
+			targetTitle: nodes.title,
+			targetType: nodes.type,
+		})
 		.from(links)
+		.innerJoin(nodes, eq(nodes.id, links.target))
 		.where(eq(links.source, nodeId))
-	const targetLinks = await db
-		.select()
+		.orderBy(asc(nodes.title))
+
+	// Incoming: başka node'lardan bu node'a gelen bağlantılar
+	const incoming = await db
+		.select({
+			source: links.source,
+			target: links.target,
+			sourceTitle: nodes.title,
+			sourceType: nodes.type,
+		})
 		.from(links)
+		.innerJoin(nodes, eq(nodes.id, links.source))
 		.where(eq(links.target, nodeId))
-	return { sourceLinks, targetLinks }
+		.orderBy(asc(nodes.title))
+
+	return { outgoing, incoming }
+}
+
+// Link selector dropdown için hafif node listesi (id + title + type)
+export async function getAllNodeTitles(excludeId?: string) {
+	const query = db
+		.select({
+			id: nodes.id,
+			title: nodes.title,
+			type: nodes.type,
+		})
+		.from(nodes)
+		.orderBy(asc(nodes.title))
+
+	if (excludeId) {
+		return query.where(ne(nodes.id, excludeId))
+	}
+	return query
 }
 
 export async function createNode(data: NewNode) {
