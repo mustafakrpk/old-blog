@@ -2,12 +2,16 @@ import { NextRequest, NextResponse } from "next/server"
 import { getGraphData } from "@/actions/graph"
 import type { FocusMode } from "@/lib/types"
 
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 const VALID_MODES: FocusMode[] = ["professional", "explorer", "god_mode"]
 
 const corsHeaders = {
 	"Access-Control-Allow-Origin": "*",
 	"Access-Control-Allow-Methods": "GET, OPTIONS",
 	"Access-Control-Allow-Headers": "Content-Type",
+	"Cache-Control": "no-store, no-cache, must-revalidate",
 }
 
 export async function OPTIONS() {
