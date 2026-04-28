@@ -21,32 +21,6 @@ interface KnowledgeGraphProps {
 	focusNodeId?: string | null
 }
 
-// Random tree generator for extra density
-function genRandomTree(N = 300) {
-	return {
-		nodes: [...Array(N).keys()].map((i) => ({
-			id: `rand-${i}`,
-			title: `Node ${i}`,
-			type: "skill" as const,
-			category: [
-				"Web Development",
-				"Backend",
-				"AI & Data",
-				"DevOps",
-				"Design",
-			][i % 5],
-			description: `Random node ${i}`,
-			val: 1,
-		})),
-		links: [...Array(N).keys()]
-			.filter((id) => id)
-			.map((id) => ({
-				source: `rand-${id}`,
-				target: `rand-${Math.round(Math.random() * (id - 1))}`,
-			})),
-	}
-}
-
 export default function KnowledgeGraph({
 	nodes,
 	links,
@@ -59,66 +33,14 @@ export default function KnowledgeGraph({
 		width: window.innerWidth,
 		height: window.innerHeight,
 	})
-	const [blocksData, setBlocksData] = useState<{
-		nodes: Array<{ id: string; user: string; description: string }>
-		links: Array<{ source: string; target: string }>
-	} | null>(null)
 
-	// Fetch blocks.json for extra visual density
-	useEffect(() => {
-		fetch("/datasets/blocks.json")
-			.then((res) => res.json())
-			.then((data) => setBlocksData(data))
-			.catch((err) => console.error("Failed to load blocks.json:", err))
-	}, [])
-
-	// Merge: DB nodes + blocks.json + random tree
+	// Sadece DB'den gelen node + link kullan
 	const graphData = useMemo(() => {
-		const pNodes = nodes.map((n) => ({ ...n }))
-		const pLinks = links.map((l) => ({ ...l }))
-
-		// Random tree for extra density
-		const randomTree = genRandomTree(500)
-		const rLinks = [
-			...randomTree.links,
-			...(pNodes.length > 0
-				? [{ source: pNodes[0].id, target: "rand-0" }]
-				: []),
-		]
-
-		if (!blocksData) {
-			return {
-				nodes: [...pNodes, ...randomTree.nodes],
-				links: [...pLinks, ...rLinks],
-			}
-		}
-
-		// blocks.json nodes — prefix ids to avoid collision
-		const bNodes = blocksData.nodes.map((n) => ({
-			id: `b-${n.id}`,
-			title: n.description || n.id,
-			type: "skill" as const,
-			category: "Web Development",
-			description: n.description || "",
-			user: n.user,
-			val: 1,
-		}))
-
-		const bLinks = blocksData.links.map((l) => ({
-			source: `b-${l.source}`,
-			target: `b-${l.target}`,
-		}))
-
-		// Bridge: connect blocks cluster to hub
-		const bridge = pNodes.length > 0
-			? [{ source: pNodes[0].id, target: `b-${blocksData.nodes[0].id}` }]
-			: []
-
 		return {
-			nodes: [...pNodes, ...bNodes, ...randomTree.nodes],
-			links: [...pLinks, ...bLinks, ...bridge, ...rLinks],
+			nodes: nodes.map((n) => ({ ...n })),
+			links: links.map((l) => ({ ...l })),
 		}
-	}, [nodes, links, blocksData])
+	}, [nodes, links])
 
 	useEffect(() => {
 		const onResize = () =>
