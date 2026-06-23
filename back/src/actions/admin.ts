@@ -14,6 +14,7 @@ import { eq, like, and, count, asc, ne } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { requireWorkspace } from "@/lib/tenant"
 import { getTemplate } from "@/lib/templates"
+import { parseMarkdownFiles, type InputFile } from "@/lib/import-markdown"
 
 // Auth Better-Auth ile (lib/auth.ts). Her fonksiyon requireWorkspace() ile
 // giriş yapan kullanıcının workspace'ine kilitlenir — izolasyonun tek kapısı.
@@ -60,6 +61,45 @@ export async function applyTemplate(key: string) {
 	}
 
 	revalidateGraph()
+}
+
+// Markdown/Obsidian dosyalarını içe aktarır.
+// Var olmayan node'a giden [[link]]'ler (FK güvenliği için) atlanır.
+export async function importMarkdown(files: InputFile[]) {
+	const ws = await requireWorkspace()
+	const parsed = parseMarkdownFiles(files)
+	if (parsed.nodes.length === 0) return { nodes: 0, links: 0, skippedLinks: 0 }
+
+	await db
+		.insert(nodes)
+		.values(parsed.nodes.map((node) => ({ ...node, workspaceId: ws.id })))
+		.onConflictDoNothing()
+
+	// Workspace'teki tüm node id'leri — link hedefi var mı diye kontrol için.
+	const existing = await db
+		.select({ id: nodes.id })
+		.from(nodes)
+		.where(eq(nodes.workspaceId, ws.id))
+	const ids = new Set(existing.map((r) => r.id))
+
+	const validLinks = parsed.links.filter(
+		(l) => ids.has(l.source) && ids.has(l.target),
+	)
+	const skippedLinks = parsed.links.length - validLinks.length
+
+	if (validLinks.length > 0) {
+		await db
+			.insert(links)
+			.values(validLinks.map((l) => ({ ...l, workspaceId: ws.id })))
+			.onConflictDoNothing()
+	}
+
+	revalidateGraph()
+	return {
+		nodes: parsed.nodes.length,
+		links: validLinks.length,
+		skippedLinks,
+	}
 }
 
 // ── Dashboard ────────────────────────────────────────────────────
