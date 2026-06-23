@@ -7,6 +7,7 @@ import {
 	primaryKey,
 	boolean,
 	timestamp,
+	foreignKey,
 } from "drizzle-orm/pg-core"
 
 // ── Enums ────────────────────────────────────────────────────────
@@ -35,37 +36,67 @@ export const visibilityEnum = pgEnum("visibility", [
 	"god_mode",
 ])
 
-// ── Tables ───────────────────────────────────────────────────────
-export const nodes = pgTable("nodes", {
+// ── Workspaces (tenant) ──────────────────────────────────────────
+// Her kullanıcının izole graph'ı bir workspace'tir. Public URL slug ile.
+export const workspaces = pgTable("workspaces", {
 	id: text("id").primaryKey(),
-	title: text("title").notNull(),
-	type: nodeTypeEnum("type").notNull(),
-	cluster: clusterEnum("cluster").notNull().default("core"),
-	visibility: visibilityEnum("visibility").notNull().default("professional"),
-	val: integer("val").notNull().default(1),
-	content: text("content"),
-	meta: jsonb("meta").$type<{
-		description?: string
-		date?: string
-		tags?: string[]
-		image?: string
-		link?: string
-		category?: string
-	}>(),
+	ownerId: text("owner_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+	slug: text("slug").notNull().unique(),
+	name: text("name").notNull(),
+	plan: text("plan").notNull().default("free"), // free | pro | team
+	customDomain: text("custom_domain"),
+	// Public ziyaretçinin görebileceği en yüksek mod (gizlilik tavanı).
+	defaultMode: visibilityEnum("default_mode").notNull().default("professional"),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
 })
+
+// ── Tables ───────────────────────────────────────────────────────
+export const nodes = pgTable(
+	"nodes",
+	{
+		workspaceId: text("workspace_id")
+			.notNull()
+			.references(() => workspaces.id, { onDelete: "cascade" }),
+		id: text("id").notNull(), // slug — workspace içinde unique
+		title: text("title").notNull(),
+		type: nodeTypeEnum("type").notNull(),
+		cluster: clusterEnum("cluster").notNull().default("core"),
+		visibility: visibilityEnum("visibility").notNull().default("professional"),
+		val: integer("val").notNull().default(1),
+		content: text("content"),
+		meta: jsonb("meta").$type<{
+			description?: string
+			date?: string
+			tags?: string[]
+			image?: string
+			link?: string
+			category?: string
+		}>(),
+	},
+	(t) => ({
+		pk: primaryKey({ columns: [t.workspaceId, t.id] }),
+	}),
+)
 
 export const links = pgTable(
 	"links",
 	{
-		source: text("source")
-			.notNull()
-			.references(() => nodes.id, { onDelete: "cascade" }),
-		target: text("target")
-			.notNull()
-			.references(() => nodes.id, { onDelete: "cascade" }),
+		workspaceId: text("workspace_id").notNull(),
+		source: text("source").notNull(),
+		target: text("target").notNull(),
 	},
-	(table) => ({
-		pk: primaryKey({ columns: [table.source, table.target] }),
+	(t) => ({
+		pk: primaryKey({ columns: [t.workspaceId, t.source, t.target] }),
+		sourceFk: foreignKey({
+			columns: [t.workspaceId, t.source],
+			foreignColumns: [nodes.workspaceId, nodes.id],
+		}).onDelete("cascade"),
+		targetFk: foreignKey({
+			columns: [t.workspaceId, t.target],
+			foreignColumns: [nodes.workspaceId, nodes.id],
+		}).onDelete("cascade"),
 	}),
 )
 
@@ -127,3 +158,5 @@ export type Node = typeof nodes.$inferSelect
 export type NewNode = typeof nodes.$inferInsert
 export type Link = typeof links.$inferSelect
 export type NewLink = typeof links.$inferInsert
+export type Workspace = typeof workspaces.$inferSelect
+export type NewWorkspace = typeof workspaces.$inferInsert

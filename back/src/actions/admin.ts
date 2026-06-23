@@ -10,31 +10,47 @@ import {
 	type NewNode,
 	type Node,
 } from "@/db/schema"
-import { eq, like, and, count, sql, asc, ne } from "drizzle-orm"
+import { eq, like, and, count, asc, ne } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
+import { requireWorkspace } from "@/lib/tenant"
 
-// Auth artık Better-Auth ile yönetiliyor (lib/auth.ts + lib/auth-client.ts).
-// Giriş/çıkış client tarafında authClient.signIn / signOut ile yapılır.
+// Auth Better-Auth ile (lib/auth.ts). Her fonksiyon requireWorkspace() ile
+// giriş yapan kullanıcının workspace'ine kilitlenir — izolasyonun tek kapısı.
+
+// İçeriği değişen herkese açık sayfayı ve admin'i tazele.
+function revalidateGraph() {
+	revalidatePath("/")
+	revalidatePath("/admin")
+	revalidatePath("/admin/nodes")
+}
 
 // ── Dashboard ────────────────────────────────────────────────────
 export async function getDashboardStats() {
+	const ws = await requireWorkspace()
+	const wsNodes = eq(nodes.workspaceId, ws.id)
+
 	const [nodeCount] = await db
 		.select({ count: count() })
 		.from(nodes)
+		.where(wsNodes)
 	const [linkCount] = await db
 		.select({ count: count() })
 		.from(links)
+		.where(eq(links.workspaceId, ws.id))
 	const byTypeRaw = await db
 		.select({ type: nodes.type, count: count() })
 		.from(nodes)
+		.where(wsNodes)
 		.groupBy(nodes.type)
 	const byClusterRaw = await db
 		.select({ cluster: nodes.cluster, count: count() })
 		.from(nodes)
+		.where(wsNodes)
 		.groupBy(nodes.cluster)
 	const byVisibilityRaw = await db
 		.select({ visibility: nodes.visibility, count: count() })
 		.from(nodes)
+		.where(wsNodes)
 		.groupBy(nodes.visibility)
 
 	const byType = nodeTypeEnum.enumValues.map((type) => ({
@@ -65,38 +81,38 @@ export async function getNodesList(filters?: {
 	cluster?: string
 	search?: string
 }) {
-	let query = db.select().from(nodes).$dynamic()
+	const ws = await requireWorkspace()
 
-	const conditions = []
+	const conditions = [eq(nodes.workspaceId, ws.id)]
 	if (filters?.type) {
 		conditions.push(eq(nodes.type, filters.type as Node["type"]))
 	}
 	if (filters?.cluster) {
-		conditions.push(
-			eq(nodes.cluster, filters.cluster as Node["cluster"]),
-		)
+		conditions.push(eq(nodes.cluster, filters.cluster as Node["cluster"]))
 	}
 	if (filters?.search) {
 		conditions.push(like(nodes.title, `%${filters.search}%`))
 	}
 
-	if (conditions.length > 0) {
-		query = query.where(and(...conditions))
-	}
-
-	return query
+	return db
+		.select()
+		.from(nodes)
+		.where(and(...conditions))
 }
 
 export async function getNodeById(id: string) {
+	const ws = await requireWorkspace()
 	const result = await db
 		.select()
 		.from(nodes)
-		.where(eq(nodes.id, id))
+		.where(and(eq(nodes.workspaceId, ws.id), eq(nodes.id, id)))
 		.limit(1)
 	return result[0] ?? null
 }
 
 export async function getNodeLinks(nodeId: string) {
+	const ws = await requireWorkspace()
+
 	// Outgoing: bu node'dan başka node'lara giden bağlantılar
 	const outgoing = await db
 		.select({
@@ -106,8 +122,14 @@ export async function getNodeLinks(nodeId: string) {
 			targetType: nodes.type,
 		})
 		.from(links)
-		.innerJoin(nodes, eq(nodes.id, links.target))
-		.where(eq(links.source, nodeId))
+		.innerJoin(
+			nodes,
+			and(
+				eq(nodes.workspaceId, links.workspaceId),
+				eq(nodes.id, links.target),
+			),
+		)
+		.where(and(eq(links.workspaceId, ws.id), eq(links.source, nodeId)))
 		.orderBy(asc(nodes.title))
 
 	// Incoming: başka node'lardan bu node'a gelen bağlantılar
@@ -119,8 +141,14 @@ export async function getNodeLinks(nodeId: string) {
 			sourceType: nodes.type,
 		})
 		.from(links)
-		.innerJoin(nodes, eq(nodes.id, links.source))
-		.where(eq(links.target, nodeId))
+		.innerJoin(
+			nodes,
+			and(
+				eq(nodes.workspaceId, links.workspaceId),
+				eq(nodes.id, links.source),
+			),
+		)
+		.where(and(eq(links.workspaceId, ws.id), eq(links.target, nodeId)))
 		.orderBy(asc(nodes.title))
 
 	return { outgoing, incoming }
@@ -128,56 +156,67 @@ export async function getNodeLinks(nodeId: string) {
 
 // Link selector dropdown için hafif node listesi (id + title + type)
 export async function getAllNodeTitles(excludeId?: string) {
-	const query = db
+	const ws = await requireWorkspace()
+
+	const conditions = [eq(nodes.workspaceId, ws.id)]
+	if (excludeId) conditions.push(ne(nodes.id, excludeId))
+
+	return db
 		.select({
 			id: nodes.id,
 			title: nodes.title,
 			type: nodes.type,
 		})
 		.from(nodes)
+		.where(and(...conditions))
 		.orderBy(asc(nodes.title))
-
-	if (excludeId) {
-		return query.where(ne(nodes.id, excludeId))
-	}
-	return query
 }
 
-export async function createNode(data: NewNode) {
-	await db.insert(nodes).values(data)
-	revalidatePath("/")
-	revalidatePath("/admin")
-	revalidatePath("/admin/nodes")
+export async function createNode(data: Omit<NewNode, "workspaceId">) {
+	const ws = await requireWorkspace()
+	await db.insert(nodes).values({ ...data, workspaceId: ws.id })
+	revalidateGraph()
 }
 
 export async function updateNode(
 	id: string,
-	data: Partial<NewNode>,
+	data: Partial<Omit<NewNode, "workspaceId" | "id">>,
 ) {
-	await db.update(nodes).set(data).where(eq(nodes.id, id))
-	revalidatePath("/")
-	revalidatePath("/admin")
-	revalidatePath("/admin/nodes")
+	const ws = await requireWorkspace()
+	await db
+		.update(nodes)
+		.set(data)
+		.where(and(eq(nodes.workspaceId, ws.id), eq(nodes.id, id)))
+	revalidateGraph()
 }
 
 export async function deleteNode(id: string) {
-	await db.delete(nodes).where(eq(nodes.id, id))
-	revalidatePath("/")
-	revalidatePath("/admin")
-	revalidatePath("/admin/nodes")
+	const ws = await requireWorkspace()
+	await db
+		.delete(nodes)
+		.where(and(eq(nodes.workspaceId, ws.id), eq(nodes.id, id)))
+	revalidateGraph()
 }
 
 export async function createLink(source: string, target: string) {
+	const ws = await requireWorkspace()
 	await db
 		.insert(links)
-		.values({ source, target })
+		.values({ workspaceId: ws.id, source, target })
 		.onConflictDoNothing()
 	revalidatePath("/")
 }
 
 export async function deleteLink(source: string, target: string) {
+	const ws = await requireWorkspace()
 	await db
 		.delete(links)
-		.where(and(eq(links.source, source), eq(links.target, target)))
+		.where(
+			and(
+				eq(links.workspaceId, ws.id),
+				eq(links.source, source),
+				eq(links.target, target),
+			),
+		)
 	revalidatePath("/")
 }

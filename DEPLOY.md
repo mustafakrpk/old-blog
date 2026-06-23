@@ -157,6 +157,29 @@ sudo -u mustafa pm2 restart digital-brain
 
 ---
 
+### ⚠️ BİR KERELİK — Multi-tenant geçişi (workspace izolasyonu)
+
+`0002_multitenant.sql` migration'ı **paylaşımlı Neon DB'ye zaten uygulandı**
+(lokalden, transaction'lı). Sunucuda tekrar çalıştırmana **gerek yok**. Tek gereken
+`.env.local`'a bir satır + normal back deploy:
+
+```bash
+cd /var/www/digital-brain/back
+
+# Public viewer ?u= almazsa hangi workspace gösterilsin (founder):
+echo 'DEFAULT_WORKSPACE_SLUG=mustafa' >> .env.local
+
+bun install && bun run build
+sudo -u mustafa pm2 restart digital-brain
+```
+
+> Artık tüm node/link'ler `ws_founder` workspace'ine bağlı; admin sadece giriş yapan
+> kullanıcının kendi graph'ını yönetir. Yeni kayıt olan herkes otomatik kendi boş
+> workspace'ini alır (izole). Founder graph'ı `default_mode=god_mode` olduğu için
+> public sitede her şey görünmeye devam eder.
+
+---
+
 ### Senaryo B — Sadece back değişti (admin, API, server action, DB)
 
 **Local:**

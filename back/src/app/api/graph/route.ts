@@ -23,6 +23,18 @@ export async function GET(request: NextRequest) {
 	if (!mode || !VALID_MODES.includes(mode)) {
 		return NextResponse.json({ error: "Invalid mode" }, { status: 400, headers: corsHeaders })
 	}
-	const data = await getGraphData(mode)
+
+	// Hangi workspace? ?u=<slug> verilir; verilmezse founder'ın default'una düşer.
+	const slug =
+		request.nextUrl.searchParams.get("u") ||
+		process.env.DEFAULT_WORKSPACE_SLUG
+	if (!slug) {
+		return NextResponse.json(
+			{ error: "Missing workspace (u)" },
+			{ status: 400, headers: corsHeaders },
+		)
+	}
+
+	const data = await getGraphData(slug, mode)
 	return NextResponse.json(data, { headers: corsHeaders })
 }

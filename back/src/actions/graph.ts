@@ -2,37 +2,57 @@
 
 import { db } from "@/db"
 import { nodes, links } from "@/db/schema"
-import { eq, inArray } from "drizzle-orm"
+import { eq, and, inArray } from "drizzle-orm"
 import type { FocusMode, GraphData } from "@/lib/types"
+import { getWorkspaceBySlug, clampMode } from "@/lib/tenant"
 
-export async function getGraphData(mode: FocusMode): Promise<GraphData> {
+/**
+ * Bir workspace'in public graph'ını döndürür (slug ile).
+ * Gizlilik: istenen mod, workspace'in defaultMode tavanına indirgenir.
+ * Bilinmeyen slug → boş graph.
+ */
+export async function getGraphData(
+	slug: string,
+	mode: FocusMode,
+): Promise<GraphData> {
+	const ws = await getWorkspaceBySlug(slug)
+	if (!ws) return { nodes: [], links: [] }
+
+	const effectiveMode = clampMode(mode, ws.defaultMode)
+	const inWorkspace = eq(nodes.workspaceId, ws.id)
+
 	let dbNodes
-
-	switch (mode) {
+	switch (effectiveMode) {
 		case "professional":
 			dbNodes = await db
 				.select()
 				.from(nodes)
-				.where(eq(nodes.visibility, "professional"))
+				.where(and(inWorkspace, eq(nodes.visibility, "professional")))
 			break
 		case "explorer":
 			dbNodes = await db
 				.select()
 				.from(nodes)
 				.where(
-					inArray(nodes.visibility, ["professional", "explorer"]),
+					and(
+						inWorkspace,
+						inArray(nodes.visibility, ["professional", "explorer"]),
+					),
 				)
 			break
 		case "god_mode":
-			dbNodes = await db.select().from(nodes)
+			dbNodes = await db.select().from(nodes).where(inWorkspace)
 			break
 	}
 
 	const nodeIds = new Set(dbNodes.map((n) => n.id))
-	const allLinks = await db.select().from(links)
-	const filteredLinks = allLinks.filter(
-		(l) => nodeIds.has(l.source) && nodeIds.has(l.target),
-	)
+	const wsLinks = await db
+		.select()
+		.from(links)
+		.where(eq(links.workspaceId, ws.id))
+	const filteredLinks = wsLinks
+		.filter((l) => nodeIds.has(l.source) && nodeIds.has(l.target))
+		.map((l) => ({ source: l.source, target: l.target }))
 
 	return {
 		nodes: dbNodes.map((n) => ({
