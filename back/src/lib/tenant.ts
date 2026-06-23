@@ -1,27 +1,42 @@
-import { headers } from "next/headers"
+import { headers, cookies } from "next/headers"
 import { eq } from "drizzle-orm"
 import { db } from "@/db"
-import { workspaces, type Workspace } from "@/db/schema"
+import { workspaces, members, type Workspace } from "@/db/schema"
 import { auth } from "@/lib/auth"
 import type { FocusMode } from "@/lib/types"
 
+export const ACTIVE_WS_COOKIE = "active_ws"
+
+export interface ActiveMembership {
+	workspace: Workspace
+	role: string
+}
+
 /**
- * Giriş yapan kullanıcının workspace'ini döndürür.
- * Admin action'larının başında çağrılır — izolasyonun tek kapısı.
- * Oturum yoksa veya workspace yoksa hata fırlatır.
+ * Giriş yapan kullanıcının AKTİF workspace'i + rolü.
+ * Aktif workspace cookie ile seçilir; yoksa kullanıcının ilk üyeliği.
+ * Üyeliğe dayanır — izolasyonun ve takım erişiminin tek kapısı.
  */
-export async function requireWorkspace(): Promise<Workspace> {
+export async function getActiveMembership(): Promise<ActiveMembership> {
 	const session = await auth.api.getSession({ headers: await headers() })
 	if (!session) throw new Error("UNAUTHENTICATED")
 
-	const [ws] = await db
-		.select()
-		.from(workspaces)
-		.where(eq(workspaces.ownerId, session.user.id))
-		.limit(1)
+	const rows = await db
+		.select({ workspace: workspaces, role: members.role })
+		.from(members)
+		.innerJoin(workspaces, eq(workspaces.id, members.workspaceId))
+		.where(eq(members.userId, session.user.id))
 
-	if (!ws) throw new Error("NO_WORKSPACE")
-	return ws
+	if (rows.length === 0) throw new Error("NO_WORKSPACE")
+
+	const cookieStore = await cookies()
+	const activeId = cookieStore.get(ACTIVE_WS_COOKIE)?.value
+	const active = rows.find((r) => r.workspace.id === activeId) ?? rows[0]
+	return { workspace: active.workspace, role: active.role }
+}
+
+export async function requireWorkspace(): Promise<Workspace> {
+	return (await getActiveMembership()).workspace
 }
 
 /** Public okuma için slug'tan workspace bulur (yoksa null). */

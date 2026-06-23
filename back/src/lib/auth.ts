@@ -1,8 +1,17 @@
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { randomUUID } from "crypto"
+import { eq } from "drizzle-orm"
 import { db } from "@/db"
-import { user, session, account, verification, workspaces } from "@/db/schema"
+import {
+	user,
+	session,
+	account,
+	verification,
+	workspaces,
+	members,
+	invites,
+} from "@/db/schema"
 
 function slugify(s: string): string {
 	return (
@@ -25,17 +34,45 @@ export const auth = betterAuth({
 	databaseHooks: {
 		user: {
 			create: {
-				// Yeni kullanıcı kaydolunca otomatik bir workspace (graph) aç.
+				// Yeni kullanıcı kaydolunca: kişisel workspace + owner üyeliği,
+				// ayrıca bekleyen davetleri üyeliğe çevir.
 				after: async (createdUser) => {
 					const base = slugify(createdUser.email.split("@")[0])
+					const wsId = randomUUID()
 					await db.insert(workspaces).values({
-						id: randomUUID(),
+						id: wsId,
 						ownerId: createdUser.id,
 						slug: `${base}-${randomUUID().slice(0, 6)}`,
 						name: createdUser.name || base,
 						plan: "free",
 						defaultMode: "professional",
 					})
+					await db.insert(members).values({
+						workspaceId: wsId,
+						userId: createdUser.id,
+						role: "owner",
+					})
+
+					// Bu e-postaya gelmiş davetleri üyeliğe çevir.
+					const pending = await db
+						.select()
+						.from(invites)
+						.where(eq(invites.email, createdUser.email))
+					for (const inv of pending) {
+						await db
+							.insert(members)
+							.values({
+								workspaceId: inv.workspaceId,
+								userId: createdUser.id,
+								role: inv.role,
+							})
+							.onConflictDoNothing()
+					}
+					if (pending.length > 0) {
+						await db
+							.delete(invites)
+							.where(eq(invites.email, createdUser.email))
+					}
 				},
 			},
 		},

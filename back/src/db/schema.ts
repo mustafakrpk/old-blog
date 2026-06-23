@@ -56,6 +56,41 @@ export const workspaces = pgTable("workspaces", {
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 
+// ── Members (takım üyeliği) ──────────────────────────────────────
+// Bir workspace'e birden çok kullanıcı üye olabilir (roller: owner|admin|member).
+export const members = pgTable(
+	"members",
+	{
+		workspaceId: text("workspace_id")
+			.notNull()
+			.references(() => workspaces.id, { onDelete: "cascade" }),
+		userId: text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		role: text("role").notNull().default("member"), // owner | admin | member
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+	},
+	(t) => ({
+		pk: primaryKey({ columns: [t.workspaceId, t.userId] }),
+	}),
+)
+
+// Hesabı olmayan kişiye davet — kayıt olunca üyeliğe çevrilir.
+export const invites = pgTable(
+	"invites",
+	{
+		workspaceId: text("workspace_id")
+			.notNull()
+			.references(() => workspaces.id, { onDelete: "cascade" }),
+		email: text("email").notNull(),
+		role: text("role").notNull().default("member"),
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+	},
+	(t) => ({
+		pk: primaryKey({ columns: [t.workspaceId, t.email] }),
+	}),
+)
+
 // ── Tables ───────────────────────────────────────────────────────
 export const nodes = pgTable(
 	"nodes",
@@ -173,3 +208,5 @@ export type Link = typeof links.$inferSelect
 export type NewLink = typeof links.$inferInsert
 export type Workspace = typeof workspaces.$inferSelect
 export type NewWorkspace = typeof workspaces.$inferInsert
+export type Member = typeof members.$inferSelect
+export type Invite = typeof invites.$inferSelect

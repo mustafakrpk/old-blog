@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { signOut } from "@/lib/auth-client"
+import WorkspaceSwitcher from "@/components/admin/WorkspaceSwitcher"
 
 const navItems = [
 	{ href: "/admin", label: "Dashboard", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4" },
@@ -32,12 +33,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 		<div className="min-h-screen bg-[#000011] flex">
 			{/* Sidebar */}
 			<aside className="w-60 flex-shrink-0 border-r border-white/[0.06] bg-white/[0.02] flex flex-col">
-				<div className="px-5 py-5 border-b border-white/[0.06]">
-					<Link href="/" className="text-white/70 text-sm font-semibold hover:text-white/90 transition-colors">
-						Digital Garden
-					</Link>
-					<p className="text-white/20 text-[10px] mt-0.5">Admin Panel</p>
-				</div>
+				<WorkspaceSwitcher />
 
 				<nav className="flex-1 px-3 py-4 space-y-1">
 					{navItems.map((item) => {
