@@ -1,11 +1,37 @@
 import Link from "next/link"
 import type { Metadata } from "next"
+import { headers } from "next/headers"
 import { BRAND, BRAND_TAGLINE } from "@/lib/brand"
 import { PRO_PRICE_LABEL, PRO_PERKS, FREE_NODE_LIMIT } from "@/lib/plan"
+import { getWorkspaceByDomain } from "@/lib/tenant"
+import { getGraphData } from "@/actions/graph"
+import { getTheme } from "@/lib/themes"
+import HomeClient from "@/app/home-client"
+
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
 	title: `${BRAND} — bilgini gezilebilir bir evrene çevir`,
 	description: BRAND_TAGLINE,
+}
+
+// Kök: Host özel bir domain'e bağlıysa o workspace'in graph'ı; değilse landing.
+export default async function RootPage() {
+	const host = (await headers()).get("host") ?? ""
+	const ws = await getWorkspaceByDomain(host)
+	if (ws) {
+		const initialData = await getGraphData(ws.slug, ws.defaultMode)
+		const theme = getTheme(ws.theme)
+		return (
+			<HomeClient
+				initialData={initialData}
+				slug={ws.slug}
+				initialMode={ws.defaultMode}
+				bg={theme.bg}
+			/>
+		)
+	}
+	return <Landing />
 }
 
 const FEATURES = [
@@ -37,7 +63,7 @@ const STEPS = [
 	{ n: "3", t: "Paylaş", d: "Public linkini paylaş, galaksin keşfedilsin." },
 ]
 
-export default function LandingPage() {
+function Landing() {
 	return (
 		<div className="min-h-screen bg-[#000011] text-white overflow-x-hidden">
 			{/* Nav */}

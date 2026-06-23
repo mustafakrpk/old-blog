@@ -56,9 +56,49 @@ export async function getMyWorkspace() {
 		plan: ws.plan,
 		theme: ws.theme,
 		listed: ws.listed,
+		customDomain: ws.customDomain,
 		defaultMode: ws.defaultMode,
 		nodeCount: nodeCount.count,
 	}
+}
+
+// Özel domain (Pro). Geçerli host + benzersizlik kontrolü.
+export async function setCustomDomain(raw: string) {
+	const ws = await requireWorkspace()
+	if (!isPaid(ws.plan)) throw new Error("NOT_PRO")
+
+	const domain = raw
+		.trim()
+		.toLowerCase()
+		.replace(/^https?:\/\//, "")
+		.replace(/\/.*$/, "")
+		.replace(/:\d+$/, "")
+	if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(domain)) {
+		throw new Error("INVALID_DOMAIN")
+	}
+
+	const [taken] = await db
+		.select({ id: workspaces.id })
+		.from(workspaces)
+		.where(eq(workspaces.customDomain, domain))
+		.limit(1)
+	if (taken && taken.id !== ws.id) throw new Error("DOMAIN_TAKEN")
+
+	await db
+		.update(workspaces)
+		.set({ customDomain: domain })
+		.where(eq(workspaces.id, ws.id))
+	revalidatePath("/admin/billing")
+	return domain
+}
+
+export async function removeCustomDomain() {
+	const ws = await requireWorkspace()
+	await db
+		.update(workspaces)
+		.set({ customDomain: null })
+		.where(eq(workspaces.id, ws.id))
+	revalidatePath("/admin/billing")
 }
 
 // Keşfet'te listelenme tercihini değiştirir.

@@ -51,6 +51,19 @@ export async function getWorkspaceBySlug(
 	return ws ?? null
 }
 
+/** Özel domain (Host) → workspace. Custom domain routing için. */
+export async function getWorkspaceByDomain(
+	host: string,
+): Promise<Workspace | null> {
+	const clean = host.toLowerCase().replace(/:\d+$/, "")
+	const [ws] = await db
+		.select()
+		.from(workspaces)
+		.where(eq(workspaces.customDomain, clean))
+		.limit(1)
+	return ws ?? null
+}
+
 // Gizlilik tavanı: public ziyaretçi en fazla workspace.defaultMode kadar görebilir.
 const MODE_RANK: Record<FocusMode, number> = {
 	professional: 0,

@@ -1,6 +1,7 @@
 import { getMyWorkspace } from "@/actions/admin"
 import { isBillingEnabled } from "@/lib/stripe"
 import BillingClient from "@/components/admin/BillingClient"
+import CustomDomainCard from "@/components/admin/CustomDomainCard"
 
 export const dynamic = "force-dynamic"
 
@@ -20,6 +21,10 @@ export default async function BillingPage({
 				billingEnabled={isBillingEnabled()}
 				success={sp?.success === "1"}
 			/>
+
+			<div className="mt-6 max-w-xl">
+				<CustomDomainCard plan={ws.plan} current={ws.customDomain} />
+			</div>
 		</div>
 	)
 }
