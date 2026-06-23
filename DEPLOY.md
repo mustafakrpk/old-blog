@@ -1,4 +1,4 @@
-# Deploy & Güncelleme Rehberi
+ # Deploy & Güncelleme Rehberi
 
 Bu doküman projenin sunucudaki canlı kurulumunu ve gelecekte nasıl güncelleneceğini özetler.
 
@@ -22,6 +22,7 @@ Bu doküman projenin sunucudaki canlı kurulumunu ve gelecekte nasıl güncellen
 
 - **Front** Vite ile build edilir, çıktısı (`front/dist/*`) Plesk'in `httpdocs` klasörüne kopyalanır → nginx static serve eder.
 - **Back** Next.js olarak çalışır, PM2 process manager ile sürekli ayakta kalır, port 3000'de dinler.
+- **PM2 `mustafa` user altında çalışır** (root değil). Bun `/usr/local/bin/bun`'da system-wide.
 - Plesk her iki domain için **nginx reverse proxy + Let's Encrypt SSL** sağlar.
 - Front, API çağrılarını `admin.mustafakırpık.com/api/*` üzerinden yapar (CORS açık).
 
@@ -38,7 +39,7 @@ Bu doküman projenin sunucudaki canlı kurulumunu ve gelecekte nasıl güncellen
 ├── back/                                # Next.js admin
 │   ├── src/
 │   ├── .next/                           # build çıktısı (gitignored)
-│   └── .env.local                       # DB URL + admin şifre (gitignored!)
+│   └── .env.local                       # DB URL + Better-Auth secret (gitignored!)
 ├── mobile/                              # mobil app (kullanılmıyor şu an)
 └── ecosystem.config.cjs                 # PM2 config
 
@@ -65,7 +66,7 @@ Bu doküman projenin sunucudaki canlı kurulumunu ve gelecekte nasıl güncellen
 3. **Back (admin)**
    ```bash
    cd /var/www/digital-brain/back
-   # .env.local oluşturuldu (DATABASE_URL + ADMIN_PASSWORD)
+   # .env.local oluşturuldu (DATABASE_URL + BETTER_AUTH_SECRET + BETTER_AUTH_URL)
    bun install
    bun run build
    pm2 start /var/www/digital-brain/ecosystem.config.cjs
@@ -126,6 +127,36 @@ Tarayıcıda hard refresh (Ctrl+Shift+R) — yeni asset hash'lerini görsün.
 
 ---
 
+### ⚠️ BİR KERELİK — Better-Auth geçişi (auth: ADMIN_PASSWORD → Better-Auth)
+
+`5f9e678` commit'i admin auth'unu **ADMIN_PASSWORD** yerine **Better-Auth**
+(email + şifre) ile değiştirdi. Bu commit'i içeren ilk pull'da sunucuda ek olarak
+**şu adımları bir kez** yapman gerekir, yoksa admin'e giriş çalışmaz:
+
+```bash
+cd /var/www/digital-brain/back
+
+# 1) .env.local'a iki satır ekle:
+cat >> .env.local <<'EOF'
+BETTER_AUTH_SECRET=G3EMENILQrSvwQ7UaBXdEms4yqu5mOrbjqofd48kEJs=
+BETTER_AUTH_URL=https://admin.mustafakırpık.com
+EOF
+
+# 2) Auth tablolarını oluştur (zaten oluşturulduysa zararsız — IF NOT EXISTS):
+bunx drizzle-kit push        # user/session/account/verification
+
+# 3) better-auth paketi için install + build + restart (Senaryo B'deki gibi)
+bun install && bun run build
+sudo -u mustafa pm2 restart digital-brain
+```
+
+> İlk girişte `https://admin.mustafakırpık.com/admin/login` → **"Sign up"** ile
+> kendi hesabını oluştur. Eski `ADMIN_PASSWORD` artık kullanılmıyor (silinmedi,
+> sadece etkisiz). **Henüz multi-tenant izolasyon yok** — giriş yapan herkes aynı
+> tek graph'ı yönetir (Faz 1 Adım 2'de `workspace_id` ile izole edilecek).
+
+---
+
 ### Senaryo B — Sadece back değişti (admin, API, server action, DB)
 
 **Local:**
@@ -146,7 +177,7 @@ cd back
 bun install      # sadece yeni paket eklendiyse
 bun run build
 
-pm2 restart digital-brain
+sudo -u mustafa pm2 restart digital-brain
 pm2 logs digital-brain --lines 30 --nostream   # hata var mı kontrol
 ```
 
@@ -178,9 +209,9 @@ git pull
 
 echo "→ Back build..."
 cd back
-bun install
-bun run build
-pm2 restart digital-brain
+sudo -u mustafa bun install
+sudo -u mustafa bun run build
+sudo -u mustafa pm2 restart digital-brain
 
 echo "→ Front build..."
 cd ../front
@@ -199,7 +230,7 @@ find $HTTPDOCS -type f -exec chmod 644 {} \;
 
 echo "✓ Deploy tamamlandı"
 echo
-pm2 list
+sudo -u mustafa pm2 list
 ```
 
 Çalıştırılabilir yap:
@@ -216,16 +247,24 @@ Artık tek komut:
 
 ## 🛠 Sık Kullanılan Komutlar
 
-### PM2
+### PM2 (mustafa user altında çalışıyor — `sudo -u mustafa` prefix'i ZORUNLU)
 ```bash
-pm2 list                          # çalışan uygulamalar
-pm2 logs digital-brain            # canlı log
-pm2 logs digital-brain --lines 50 --nostream   # son 50 satır
-pm2 restart digital-brain         # yeniden başlat
-pm2 stop digital-brain            # durdur
-pm2 start digital-brain           # başlat
-pm2 monit                         # dashboard (CPU, RAM)
-pm2 save                          # mevcut listeyi kaydet
+sudo -u mustafa pm2 list                                    # çalışan uygulamalar
+sudo -u mustafa pm2 logs digital-brain                      # canlı log
+sudo -u mustafa pm2 logs digital-brain --lines 50 --nostream # son 50 satır
+sudo -u mustafa pm2 restart digital-brain                   # yeniden başlat
+sudo -u mustafa pm2 stop digital-brain                      # durdur
+sudo -u mustafa pm2 start digital-brain                     # başlat
+sudo -u mustafa pm2 monit                                   # dashboard (CPU, RAM)
+sudo -u mustafa pm2 save                                    # mevcut listeyi kaydet
+```
+
+> **Not:** PM2 daemon başlangıçta birkaç `spawn /usr/bin/node EACCES` warning'i basabilir. Bu zararsız — PM2'nin internal IPC denemeleri, app yine de çalışır.
+
+### Systemd
+```bash
+systemctl status pm2-mustafa     # auto-start servisi durumu
+systemctl restart pm2-mustafa    # gerekirse manuel restart
 ```
 
 ### Sunucu durumu
@@ -250,15 +289,32 @@ curl -I http://localhost:3000               # back direkt (PM2)
 ### `502 Bad Gateway`
 PM2 / Next.js çökmüş.
 ```bash
-pm2 list                                         # status'a bak
-pm2 logs digital-brain --lines 30 --nostream    # hatayı oku
-pm2 restart digital-brain
+sudo -u mustafa pm2 list                                       # status'a bak
+sudo -u mustafa pm2 logs digital-brain --lines 30 --nostream   # hatayı oku
+sudo -u mustafa pm2 restart digital-brain
 ```
 
 Port 3000 başkası tarafından tutuluyorsa:
 ```bash
 fuser -k 3000/tcp
-pm2 restart digital-brain
+sudo -u mustafa pm2 restart digital-brain
+```
+
+### `Authentication failure` veya `Script not found: /root/.bun/bin/bun`
+Plesk mustafa user'ının shell'ini reset etmiş veya bun path bozulmuş olabilir.
+```bash
+# Shell'i tekrar aç
+getent passwd mustafa   # /bin/bash mi? Yoksa /bin/false mi?
+usermod -s /bin/bash mustafa
+
+# Bun system-wide mi?
+ls -la /usr/local/bin/bun
+# Yoksa kopyala:
+cp /root/.bun/bin/bun /usr/local/bin/bun && chmod 755 /usr/local/bin/bun
+
+# Ecosystem path'i doğru mu?
+grep "script:" /var/www/digital-brain/ecosystem.config.cjs
+# `/usr/local/bin/bun` olmalı, `/root/.bun/...` değil
 ```
 
 ### Front'ta değişiklik gözükmüyor
@@ -268,8 +324,13 @@ Hâlâ yoksa httpdocs içinde son build'in olduğunu doğrula:
 ls -la /var/www/vhosts/xn--mustafakrpk-6zbc.com/httpdocs/assets/
 ```
 
-### Admin'e giriş yapılamıyor
-`back/.env.local`'deki `ADMIN_PASSWORD`'u kontrol et. Şifreyi unuttuysan dosyada yazılı.
+### Admin'e giriş yapılamıyor (Better-Auth)
+1. `back/.env.local`'de **`BETTER_AUTH_SECRET`** ve **`BETTER_AUTH_URL`** var mı?
+   (`BETTER_AUTH_URL` canlıda `https://admin.mustafakırpık.com` olmalı.)
+2. Auth tabloları DB'de var mı? `bunx drizzle-kit push` ile oluştur.
+3. Hesabın yoksa `/admin/login` → **"Sign up"** ile oluştur.
+4. Şifreyi unuttuysan: Neon'da `user`/`account` satırını silip yeniden sign up yap
+   (henüz "şifre sıfırlama" e-postası kurulmadı).
 
 ### CORS hatası (browser console'da)
 `back/src/app/api/graph/route.ts` içinde `Access-Control-Allow-Origin: *` header'ı olmalı. Pull alındıysa sorun olmaz.
@@ -288,10 +349,12 @@ bun run build
 ## 🔐 Güvenlik Hatırlatmaları
 
 - [ ] `back/.env.local` git'e gitmemeli (gitignored, doğrula)
-- [ ] `ADMIN_PASSWORD` güçlü olmalı (en az 16 karakter, random)
+- [ ] `BETTER_AUTH_SECRET` gizli kalmalı (sızarsa tüm session'lar taklit edilebilir; sızdıysa yenisini üret + restart)
+- [ ] Eski `ADMIN_PASSWORD` artık kullanılmıyor — `.env.local`'dan silebilirsin
 - [ ] Plesk panel şifresi güçlü olmalı
 - [ ] Firewall: sadece port 22 (SSH), 80 (HTTP), 443 (HTTPS), 8443 (Plesk) açık
 - [ ] Server'ı düzenli güncelle: `apt update && apt upgrade -y`
+- [x] App root yerine `mustafa` user altında çalışır (zaten yapıldı)
 
 ---
 
