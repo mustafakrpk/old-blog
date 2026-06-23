@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getSessionCookie } from "better-auth/cookies"
 
 export function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl
@@ -8,29 +9,11 @@ export function middleware(request: NextRequest) {
 		return NextResponse.next()
 	}
 
-	// Protect /admin/* routes
+	// Protect /admin/* routes — optimistic cookie check (edge-safe).
+	// Asıl doğrulama server action / sayfa içinde auth.api.getSession ile yapılır.
 	if (pathname.startsWith("/admin")) {
-		const session = request.cookies.get("admin_session")
-
-		if (!session) {
-			return NextResponse.redirect(new URL("/admin/login", request.url))
-		}
-
-		// Validate session expiry
-		try {
-			const decoded = Buffer.from(session.value, "base64").toString()
-			const [timestamp] = decoded.split(":")
-			const ts = parseInt(timestamp, 10)
-			const expired = Date.now() - ts > 24 * 60 * 60 * 1000
-
-			if (expired) {
-				const response = NextResponse.redirect(
-					new URL("/admin/login", request.url),
-				)
-				response.cookies.delete("admin_session")
-				return response
-			}
-		} catch {
+		const sessionCookie = getSessionCookie(request)
+		if (!sessionCookie) {
 			return NextResponse.redirect(new URL("/admin/login", request.url))
 		}
 	}

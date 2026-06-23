@@ -12,29 +12,9 @@ import {
 } from "@/db/schema"
 import { eq, like, and, count, sql, asc, ne } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
-import { cookies } from "next/headers"
-import { verifyAdminPassword, createSessionToken } from "@/lib/auth"
 
-// ── Auth ─────────────────────────────────────────────────────────
-export async function loginAction(password: string): Promise<boolean> {
-	if (!verifyAdminPassword(password)) return false
-
-	const token = createSessionToken()
-	const cookieStore = await cookies()
-	cookieStore.set("admin_session", token, {
-		httpOnly: true,
-		secure: process.env.NODE_ENV === "production",
-		sameSite: "lax",
-		maxAge: 60 * 60 * 24, // 24h
-		path: "/",
-	})
-	return true
-}
-
-export async function logoutAction() {
-	const cookieStore = await cookies()
-	cookieStore.delete("admin_session")
-}
+// Auth artık Better-Auth ile yönetiliyor (lib/auth.ts + lib/auth-client.ts).
+// Giriş/çıkış client tarafında authClient.signIn / signOut ile yapılır.
 
 // ── Dashboard ────────────────────────────────────────────────────
 export async function getDashboardStats() {

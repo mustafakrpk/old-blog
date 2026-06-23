@@ -1,34 +1,23 @@
-import { cookies } from "next/headers"
-import crypto from "crypto"
+import { betterAuth } from "better-auth"
+import { drizzleAdapter } from "better-auth/adapters/drizzle"
+import { db } from "@/db"
+import { user, session, account, verification } from "@/db/schema"
 
-const ADMIN_COOKIE = "admin_session"
-const SESSION_DURATION = 24 * 60 * 60 * 1000 // 24h
+export const auth = betterAuth({
+	database: drizzleAdapter(db, {
+		provider: "pg",
+		schema: { user, session, account, verification },
+	}),
+	emailAndPassword: {
+		enabled: true,
+	},
+	// Google provider (sonra Faz 1/2'de açılacak):
+	// socialProviders: {
+	// 	google: {
+	// 		clientId: process.env.GOOGLE_CLIENT_ID!,
+	// 		clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+	// 	},
+	// },
+})
 
-export function verifyAdminPassword(password: string): boolean {
-	return password === process.env.ADMIN_PASSWORD
-}
-
-export function createSessionToken(): string {
-	const timestamp = Date.now().toString()
-	const hash = crypto
-		.createHash("sha256")
-		.update(timestamp + process.env.ADMIN_PASSWORD)
-		.digest("hex")
-		.slice(0, 16)
-	return Buffer.from(`${timestamp}:${hash}`).toString("base64")
-}
-
-export async function isAdminAuthenticated(): Promise<boolean> {
-	const cookieStore = await cookies()
-	const session = cookieStore.get(ADMIN_COOKIE)
-	if (!session) return false
-
-	try {
-		const decoded = Buffer.from(session.value, "base64").toString()
-		const [timestamp] = decoded.split(":")
-		const ts = parseInt(timestamp, 10)
-		return Date.now() - ts < SESSION_DURATION
-	} catch {
-		return false
-	}
-}
+export type Session = typeof auth.$Infer.Session

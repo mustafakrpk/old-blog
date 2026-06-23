@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { logoutAction } from "@/actions/admin"
+import { signOut } from "@/lib/auth-client"
 
 const navItems = [
 	{ href: "/admin", label: "Dashboard", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4" },
@@ -20,7 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 	}
 
 	async function handleLogout() {
-		await logoutAction()
+		await signOut()
 		router.push("/admin/login")
 	}
 
