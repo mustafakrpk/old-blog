@@ -8,8 +8,7 @@
     "setup": "bun cmd.ts setup",
     "seed": "bun --watch cli/seed.ts",
     "cli": "bun --watch cli/run.ts",
-    "state": "bun --watch cmd.ts jazz-state",
-    "edgedb:migrate": "edgedb migration create && edgedb migration apply && npx @edgedb/generate edgeql-js"
+    "state": "bun --watch cmd.ts jazz-state"
   },
   "workspaces":["front"],
   "dependencies": {
