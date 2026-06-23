@@ -1,15 +1,24 @@
-import { getDashboardStats } from "@/actions/admin"
+import { getDashboardStats, getMyWorkspace } from "@/actions/admin"
 import { TYPE_COLORS } from "@/lib/constants"
+import PublicLinkCard from "@/components/admin/PublicLinkCard"
+import OnboardingCard from "@/components/admin/OnboardingCard"
 
 export const dynamic = "force-dynamic"
 
 export default async function AdminDashboardPage() {
-	const stats = await getDashboardStats()
+	const [stats, ws] = await Promise.all([
+		getDashboardStats(),
+		getMyWorkspace(),
+	])
 
 	return (
 		<div className="p-8 max-w-5xl">
 			<h1 className="text-2xl font-bold text-white/90 mb-1">Dashboard</h1>
 			<p className="text-white/30 text-sm mb-8">Overview of your knowledge graph</p>
+
+			<PublicLinkCard slug={ws.slug} />
+
+			{ws.nodeCount === 0 && <OnboardingCard />}
 
 			{/* Summary cards */}
 			<div className="grid grid-cols-2 gap-4 mb-8">

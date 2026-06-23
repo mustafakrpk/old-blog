@@ -13,6 +13,7 @@ import {
 import { eq, like, and, count, asc, ne } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { requireWorkspace } from "@/lib/tenant"
+import { getTemplate } from "@/lib/templates"
 
 // Auth Better-Auth ile (lib/auth.ts). Her fonksiyon requireWorkspace() ile
 // giriş yapan kullanıcının workspace'ine kilitlenir — izolasyonun tek kapısı.
@@ -22,6 +23,43 @@ function revalidateGraph() {
 	revalidatePath("/")
 	revalidatePath("/admin")
 	revalidatePath("/admin/nodes")
+}
+
+// ── Workspace ────────────────────────────────────────────────────
+export async function getMyWorkspace() {
+	const ws = await requireWorkspace()
+	const [nodeCount] = await db
+		.select({ count: count() })
+		.from(nodes)
+		.where(eq(nodes.workspaceId, ws.id))
+	return {
+		slug: ws.slug,
+		name: ws.name,
+		plan: ws.plan,
+		defaultMode: ws.defaultMode,
+		nodeCount: nodeCount.count,
+	}
+}
+
+// Boş bir workspace'e hazır şablon yükler (onboarding).
+export async function applyTemplate(key: string) {
+	const ws = await requireWorkspace()
+	const tpl = getTemplate(key)
+	if (!tpl) throw new Error("UNKNOWN_TEMPLATE")
+
+	await db
+		.insert(nodes)
+		.values(tpl.nodes.map((node) => ({ ...node, workspaceId: ws.id })))
+		.onConflictDoNothing()
+
+	if (tpl.links.length > 0) {
+		await db
+			.insert(links)
+			.values(tpl.links.map((l) => ({ ...l, workspaceId: ws.id })))
+			.onConflictDoNothing()
+	}
+
+	revalidateGraph()
 }
 
 // ── Dashboard ────────────────────────────────────────────────────
