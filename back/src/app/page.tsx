@@ -10,9 +10,23 @@ import HomeClient from "@/app/home-client"
 
 export const dynamic = "force-dynamic"
 
-export const metadata: Metadata = {
-	title: `${BRAND} — bilgini gezilebilir bir evrene çevir`,
-	description: BRAND_TAGLINE,
+export async function generateMetadata(): Promise<Metadata> {
+	const host = (await headers()).get("host") ?? ""
+	const ws = await getWorkspaceByDomain(host)
+	if (ws) {
+		const title = `${ws.name} — ${BRAND}`
+		const description = `${ws.name}'in gezilebilir bilgi galaksisi.`
+		return {
+			title,
+			description,
+			openGraph: { title, description, type: "website" },
+			twitter: { card: "summary_large_image", title, description },
+		}
+	}
+	return {
+		title: `${BRAND} — bilgini gezilebilir bir evrene çevir`,
+		description: BRAND_TAGLINE,
+	}
 }
 
 // Kök: Host özel bir domain'e bağlıysa o workspace'in graph'ı; değilse landing.
