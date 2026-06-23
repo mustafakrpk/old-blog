@@ -46,6 +46,7 @@ export const workspaces = pgTable("workspaces", {
 	slug: text("slug").notNull().unique(),
 	name: text("name").notNull(),
 	plan: text("plan").notNull().default("free"), // free | pro | team
+	theme: text("theme").notNull().default("galaxy"),
 	stripeCustomerId: text("stripe_customer_id"),
 	stripeSubscriptionId: text("stripe_subscription_id"),
 	customDomain: text("custom_domain"),

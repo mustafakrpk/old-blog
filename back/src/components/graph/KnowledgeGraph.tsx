@@ -15,6 +15,7 @@ interface KnowledgeGraphProps {
 	mode: FocusMode
 	onNodeClick?: (node: GraphNode) => void
 	focusNodeId?: string | null
+	backgroundColor?: string
 }
 
 export default function KnowledgeGraph({
@@ -22,6 +23,7 @@ export default function KnowledgeGraph({
 	mode,
 	onNodeClick,
 	focusNodeId,
+	backgroundColor = "#000011",
 }: KnowledgeGraphProps) {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const graphRef = useRef<any>(null)
@@ -221,7 +223,7 @@ export default function KnowledgeGraph({
 			d3AlphaDecay={0.02}
 			d3VelocityDecay={0.3}
 			cooldownTicks={200}
-			backgroundColor="#000011"
+			backgroundColor={backgroundColor}
 			enableNodeDrag={true}
 			minZoom={0.3}
 			maxZoom={12}

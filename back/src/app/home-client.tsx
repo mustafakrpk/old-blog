@@ -10,12 +10,14 @@ interface HomeClientProps {
 	initialData: GraphData
 	slug?: string
 	initialMode?: FocusMode
+	bg?: string
 }
 
 export default function HomeClient({
 	initialData,
 	slug,
 	initialMode = "professional",
+	bg = "#000011",
 }: HomeClientProps) {
 	const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
 	const [focusNodeId, setFocusNodeId] = useState<string | null>(null)
@@ -56,7 +58,10 @@ export default function HomeClient({
 	}, [])
 
 	return (
-		<div className="relative w-screen h-screen overflow-hidden bg-[#000011]">
+		<div
+			className="relative w-screen h-screen overflow-hidden"
+			style={{ backgroundColor: bg }}
+		>
 			<GraphCanvas
 				initialData={initialData}
 				initialMode={initialMode}
@@ -64,6 +69,7 @@ export default function HomeClient({
 				focusNodeId={focusNodeId}
 				onDataChange={handleDataChange}
 				slug={slug}
+				backgroundColor={bg}
 			/>
 
 			<SearchOverlay

@@ -13,6 +13,7 @@ interface GraphCanvasProps {
 	onDataChange?: (nodes: GraphNode[]) => void
 	/** Hangi workspace'in graph'ı (multi-tenant viewer). Yoksa API default'a düşer. */
 	slug?: string
+	backgroundColor?: string
 }
 
 function transformBlocksData(blocks: {
@@ -50,6 +51,7 @@ export default function GraphCanvas({
 	focusNodeId,
 	onDataChange,
 	slug,
+	backgroundColor,
 }: GraphCanvasProps) {
 	const [mode, setMode] = useState<FocusMode>(initialMode)
 	const [graphData, setGraphData] = useState<GraphData>(initialData)
@@ -111,7 +113,10 @@ export default function GraphCanvas({
 			/>
 
 			{loading ? (
-				<div className="absolute inset-0 flex items-center justify-center bg-[#000011]">
+				<div
+					className="absolute inset-0 flex items-center justify-center"
+					style={{ backgroundColor: backgroundColor ?? "#000011" }}
+				>
 					<div className="text-center">
 						<div className="relative w-16 h-16 mx-auto mb-6">
 							<div className="absolute inset-0 rounded-full border-2 border-white/10" />
@@ -128,6 +133,7 @@ export default function GraphCanvas({
 					mode={mode}
 					onNodeClick={onNodeClick}
 					focusNodeId={focusNodeId}
+					backgroundColor={backgroundColor}
 				/>
 			)}
 		</div>

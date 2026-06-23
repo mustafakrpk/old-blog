@@ -5,6 +5,7 @@ import MadeWithBadge from "@/components/MadeWithBadge"
 import { getGraphData } from "@/actions/graph"
 import { getWorkspaceBySlug } from "@/lib/tenant"
 import { BRAND } from "@/lib/brand"
+import { getTheme } from "@/lib/themes"
 
 export const dynamic = "force-dynamic"
 
@@ -36,6 +37,7 @@ export default async function PublicGraphPage({ params }: PageProps) {
 
 	// Public ziyaretçi workspace'in izin verdiği en yüksek modu görür.
 	const initialData = await getGraphData(slug, ws.defaultMode)
+	const theme = getTheme(ws.theme)
 
 	return (
 		<>
@@ -43,6 +45,7 @@ export default async function PublicGraphPage({ params }: PageProps) {
 				initialData={initialData}
 				slug={slug}
 				initialMode={ws.defaultMode}
+				bg={theme.bg}
 			/>
 			{ws.plan === "free" && <MadeWithBadge />}
 		</>

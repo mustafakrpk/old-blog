@@ -5,6 +5,7 @@ import {
 	nodes,
 	links,
 	pageViews,
+	workspaces,
 	nodeTypeEnum,
 	clusterEnum,
 	visibilityEnum,
@@ -13,6 +14,7 @@ import {
 } from "@/db/schema"
 import { eq, like, and, count, asc, ne, gte } from "drizzle-orm"
 import { isPaid } from "@/lib/plan"
+import { getTheme } from "@/lib/themes"
 import { revalidatePath } from "next/cache"
 import { requireWorkspace } from "@/lib/tenant"
 import { getTemplate } from "@/lib/templates"
@@ -52,9 +54,23 @@ export async function getMyWorkspace() {
 		slug: ws.slug,
 		name: ws.name,
 		plan: ws.plan,
+		theme: ws.theme,
 		defaultMode: ws.defaultMode,
 		nodeCount: nodeCount.count,
 	}
+}
+
+// Graph temasını değiştirir. Premium temalar (free olmayan) yalnızca Pro'da.
+export async function setTheme(key: string) {
+	const ws = await requireWorkspace()
+	const theme = getTheme(key)
+	if (!theme.free && !isPaid(ws.plan)) throw new Error("NOT_PRO")
+	await db
+		.update(workspaces)
+		.set({ theme: theme.key })
+		.where(eq(workspaces.id, ws.id))
+	revalidateGraph()
+	return theme.key
 }
 
 // Boş bir workspace'e hazır şablon yükler (onboarding).
