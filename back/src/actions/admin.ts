@@ -15,6 +15,19 @@ import { revalidatePath } from "next/cache"
 import { requireWorkspace } from "@/lib/tenant"
 import { getTemplate } from "@/lib/templates"
 import { parseMarkdownFiles, type InputFile } from "@/lib/import-markdown"
+import { nodeLimit } from "@/lib/plan"
+import type { Workspace } from "@/db/schema"
+
+// Free plan node limiti kontrolü — aşılırsa NODE_LIMIT fırlatır.
+async function assertNodeCapacity(ws: Workspace, adding: number) {
+	const limit = nodeLimit(ws.plan)
+	if (limit === Infinity) return
+	const [c] = await db
+		.select({ count: count() })
+		.from(nodes)
+		.where(eq(nodes.workspaceId, ws.id))
+	if (c.count + adding > limit) throw new Error("NODE_LIMIT")
+}
 
 // Auth Better-Auth ile (lib/auth.ts). Her fonksiyon requireWorkspace() ile
 // giriş yapan kullanıcının workspace'ine kilitlenir — izolasyonun tek kapısı.
@@ -47,6 +60,7 @@ export async function applyTemplate(key: string) {
 	const ws = await requireWorkspace()
 	const tpl = getTemplate(key)
 	if (!tpl) throw new Error("UNKNOWN_TEMPLATE")
+	await assertNodeCapacity(ws, tpl.nodes.length)
 
 	await db
 		.insert(nodes)
@@ -69,6 +83,7 @@ export async function importMarkdown(files: InputFile[]) {
 	const ws = await requireWorkspace()
 	const parsed = parseMarkdownFiles(files)
 	if (parsed.nodes.length === 0) return { nodes: 0, links: 0, skippedLinks: 0 }
+	await assertNodeCapacity(ws, parsed.nodes.length)
 
 	await db
 		.insert(nodes)
@@ -252,6 +267,7 @@ export async function getAllNodeTitles(excludeId?: string) {
 
 export async function createNode(data: Omit<NewNode, "workspaceId">) {
 	const ws = await requireWorkspace()
+	await assertNodeCapacity(ws, 1)
 	await db.insert(nodes).values({ ...data, workspaceId: ws.id })
 	revalidateGraph()
 }
