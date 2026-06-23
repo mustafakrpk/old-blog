@@ -1,10 +1,55 @@
 "use server"
 
 import { db } from "@/db"
-import { nodes, links } from "@/db/schema"
-import { eq, and, inArray } from "drizzle-orm"
+import { nodes, links, workspaces, pageViews } from "@/db/schema"
+import { eq, and, inArray, count } from "drizzle-orm"
 import type { FocusMode, GraphData } from "@/lib/types"
 import { getWorkspaceBySlug, clampMode } from "@/lib/tenant"
+
+export interface PublicWorkspace {
+	slug: string
+	name: string
+	theme: string
+	nodes: number
+	views: number
+}
+
+/** Keşfet için: listelenen, en az 1 node'u olan public graph'lar (ziyarete göre). */
+export async function getPublicWorkspaces(): Promise<PublicWorkspace[]> {
+	const wss = await db
+		.select({
+			id: workspaces.id,
+			slug: workspaces.slug,
+			name: workspaces.name,
+			theme: workspaces.theme,
+		})
+		.from(workspaces)
+		.where(eq(workspaces.listed, true))
+	if (wss.length === 0) return []
+
+	const nodeCounts = await db
+		.select({ wid: nodes.workspaceId, c: count() })
+		.from(nodes)
+		.groupBy(nodes.workspaceId)
+	const viewCounts = await db
+		.select({ wid: pageViews.workspaceId, c: count() })
+		.from(pageViews)
+		.groupBy(pageViews.workspaceId)
+
+	const nodeMap = new Map(nodeCounts.map((r) => [r.wid, r.c]))
+	const viewMap = new Map(viewCounts.map((r) => [r.wid, r.c]))
+
+	return wss
+		.map((w) => ({
+			slug: w.slug,
+			name: w.name,
+			theme: w.theme,
+			nodes: nodeMap.get(w.id) ?? 0,
+			views: viewMap.get(w.id) ?? 0,
+		}))
+		.filter((w) => w.nodes > 0)
+		.sort((a, b) => b.views - a.views || b.nodes - a.nodes)
+}
 
 /**
  * Bir workspace'in public graph'ını döndürür (slug ile).

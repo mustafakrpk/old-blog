@@ -1,5 +1,6 @@
 import { getMyWorkspace } from "@/actions/admin"
 import ThemePicker from "@/components/admin/ThemePicker"
+import ListedToggle from "@/components/admin/ListedToggle"
 
 export const dynamic = "force-dynamic"
 
@@ -13,6 +14,11 @@ export default async function AppearancePage() {
 				Public galaksinin temasını seç
 			</p>
 			<ThemePicker current={ws.theme} plan={ws.plan} />
+
+			<h2 className="text-sm font-medium text-white/50 uppercase tracking-wider mt-10 mb-3">
+				Gizlilik
+			</h2>
+			<ListedToggle initial={ws.listed} />
 		</div>
 	)
 }

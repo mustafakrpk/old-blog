@@ -47,6 +47,12 @@ export default function LandingPage() {
 				</span>
 				<div className="flex items-center gap-3 text-sm">
 					<Link
+						href="/explore"
+						className="text-white/60 hover:text-white/90 transition-colors"
+					>
+						Keşfet
+					</Link>
+					<Link
 						href="/admin/login"
 						className="text-white/60 hover:text-white/90 transition-colors"
 					>

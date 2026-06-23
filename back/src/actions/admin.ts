@@ -55,9 +55,21 @@ export async function getMyWorkspace() {
 		name: ws.name,
 		plan: ws.plan,
 		theme: ws.theme,
+		listed: ws.listed,
 		defaultMode: ws.defaultMode,
 		nodeCount: nodeCount.count,
 	}
+}
+
+// Keşfet'te listelenme tercihini değiştirir.
+export async function setListed(listed: boolean) {
+	const ws = await requireWorkspace()
+	await db
+		.update(workspaces)
+		.set({ listed })
+		.where(eq(workspaces.id, ws.id))
+	revalidatePath("/explore")
+	return listed
 }
 
 // Graph temasını değiştirir. Premium temalar (free olmayan) yalnızca Pro'da.
