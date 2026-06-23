@@ -4,13 +4,19 @@ import { useState, useCallback } from "react"
 import GraphCanvas from "@/components/graph/GraphCanvas"
 import SearchOverlay from "@/components/SearchOverlay"
 import ContentPanel from "@/components/ContentPanel"
-import type { GraphData, GraphNode } from "@/lib/types"
+import type { FocusMode, GraphData, GraphNode } from "@/lib/types"
 
 interface HomeClientProps {
 	initialData: GraphData
+	slug?: string
+	initialMode?: FocusMode
 }
 
-export default function HomeClient({ initialData }: HomeClientProps) {
+export default function HomeClient({
+	initialData,
+	slug,
+	initialMode = "professional",
+}: HomeClientProps) {
 	const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
 	const [focusNodeId, setFocusNodeId] = useState<string | null>(null)
 	const [allNodes, setAllNodes] = useState<GraphNode[]>(initialData.nodes)
@@ -43,10 +49,11 @@ export default function HomeClient({ initialData }: HomeClientProps) {
 		<div className="relative w-screen h-screen overflow-hidden bg-[#000011]">
 			<GraphCanvas
 				initialData={initialData}
-				initialMode="professional"
+				initialMode={initialMode}
 				onNodeClick={handleNodeClick}
 				focusNodeId={focusNodeId}
 				onDataChange={handleDataChange}
+				slug={slug}
 			/>
 
 			<SearchOverlay

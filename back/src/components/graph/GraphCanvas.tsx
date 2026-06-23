@@ -11,6 +11,8 @@ interface GraphCanvasProps {
 	onNodeClick?: (node: GraphNode) => void
 	focusNodeId?: string | null
 	onDataChange?: (nodes: GraphNode[]) => void
+	/** Hangi workspace'in graph'ı (multi-tenant viewer). Yoksa API default'a düşer. */
+	slug?: string
 }
 
 function transformBlocksData(blocks: {
@@ -47,6 +49,7 @@ export default function GraphCanvas({
 	onNodeClick,
 	focusNodeId,
 	onDataChange,
+	slug,
 }: GraphCanvasProps) {
 	const [mode, setMode] = useState<FocusMode>(initialMode)
 	const [graphData, setGraphData] = useState<GraphData>(initialData)
@@ -59,7 +62,9 @@ export default function GraphCanvas({
 			setMode(newMode)
 
 			try {
-				const res = await fetch(`/api/graph?mode=${newMode}`)
+				const params = new URLSearchParams({ mode: newMode })
+				if (slug) params.set("u", slug)
+				const res = await fetch(`/api/graph?${params}`)
 				const dbData: GraphData = await res.json()
 
 				if (newMode === "god_mode") {
@@ -89,7 +94,7 @@ export default function GraphCanvas({
 
 			setLoading(false)
 		},
-		[blocksCache, onDataChange],
+		[blocksCache, onDataChange, slug],
 	)
 
 	return (
