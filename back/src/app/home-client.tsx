@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import GraphCanvas from "@/components/graph/GraphCanvas"
 import SearchOverlay from "@/components/SearchOverlay"
 import ContentPanel from "@/components/ContentPanel"
@@ -20,6 +20,16 @@ export default function HomeClient({
 	const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
 	const [focusNodeId, setFocusNodeId] = useState<string | null>(null)
 	const [allNodes, setAllNodes] = useState<GraphNode[]>(initialData.nodes)
+
+	// Public viewer (slug var) → ziyaret sayacı beacon'ı (bir kez).
+	useEffect(() => {
+		if (!slug) return
+		fetch("/api/track", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ slug }),
+		}).catch(() => {})
+	}, [slug])
 
 	const handleNodeClick = useCallback((node: GraphNode) => {
 		setSelectedNode(node)

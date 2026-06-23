@@ -4,13 +4,15 @@ import { db } from "@/db"
 import {
 	nodes,
 	links,
+	pageViews,
 	nodeTypeEnum,
 	clusterEnum,
 	visibilityEnum,
 	type NewNode,
 	type Node,
 } from "@/db/schema"
-import { eq, like, and, count, asc, ne } from "drizzle-orm"
+import { eq, like, and, count, asc, ne, gte } from "drizzle-orm"
+import { isPaid } from "@/lib/plan"
 import { revalidatePath } from "next/cache"
 import { requireWorkspace } from "@/lib/tenant"
 import { getTemplate } from "@/lib/templates"
@@ -115,6 +117,47 @@ export async function importMarkdown(files: InputFile[]) {
 		links: validLinks.length,
 		skippedLinks,
 	}
+}
+
+// ── Analytics (Pro) ──────────────────────────────────────────────
+const DAY_MS = 24 * 60 * 60 * 1000
+
+export async function getAnalytics() {
+	const ws = await requireWorkspace()
+	if (!isPaid(ws.plan)) {
+		return { locked: true as const, plan: ws.plan }
+	}
+
+	const since = new Date(Date.now() - 13 * DAY_MS)
+	since.setHours(0, 0, 0, 0)
+
+	const [total] = await db
+		.select({ count: count() })
+		.from(pageViews)
+		.where(eq(pageViews.workspaceId, ws.id))
+
+	const rows = await db
+		.select({ createdAt: pageViews.createdAt })
+		.from(pageViews)
+		.where(
+			and(eq(pageViews.workspaceId, ws.id), gte(pageViews.createdAt, since)),
+		)
+
+	// Son 14 günü güne göre kovala (boş günler 0).
+	const buckets = new Map<string, number>()
+	for (let i = 0; i < 14; i++) {
+		const d = new Date(since.getTime() + i * DAY_MS)
+		buckets.set(d.toISOString().slice(0, 10), 0)
+	}
+	for (const r of rows) {
+		const key = new Date(r.createdAt).toISOString().slice(0, 10)
+		if (buckets.has(key)) buckets.set(key, (buckets.get(key) ?? 0) + 1)
+	}
+
+	const days = [...buckets.entries()].map(([date, count]) => ({ date, count }))
+	const last7 = days.slice(-7).reduce((s, d) => s + d.count, 0)
+
+	return { locked: false as const, plan: ws.plan, total: total.count, last7, days }
 }
 
 // ── Dashboard ────────────────────────────────────────────────────

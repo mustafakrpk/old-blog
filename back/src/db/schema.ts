@@ -155,6 +155,15 @@ export const verification = pgTable("verification", {
 	updatedAt: timestamp("updated_at").defaultNow(),
 })
 
+// ── Analytics ────────────────────────────────────────────────────
+export const pageViews = pgTable("page_views", {
+	id: text("id").primaryKey(),
+	workspaceId: text("workspace_id")
+		.notNull()
+		.references(() => workspaces.id, { onDelete: "cascade" }),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
 // ── Inferred Types ───────────────────────────────────────────────
 export type Node = typeof nodes.$inferSelect
 export type NewNode = typeof nodes.$inferInsert
