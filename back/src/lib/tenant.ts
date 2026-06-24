@@ -39,6 +39,15 @@ export async function requireWorkspace(): Promise<Workspace> {
 	return (await getActiveMembership()).workspace
 }
 
+/** Giriş yoksa/üyelik yoksa null döner (public sayfalarda güvenli kullanım). */
+export async function getOptionalWorkspace(): Promise<Workspace | null> {
+	try {
+		return (await getActiveMembership()).workspace
+	} catch {
+		return null
+	}
+}
+
 /** Public okuma için slug'tan workspace bulur (yoksa null). */
 export async function getWorkspaceBySlug(
 	slug: string,

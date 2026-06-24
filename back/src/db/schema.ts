@@ -91,6 +91,23 @@ export const invites = pgTable(
 	}),
 )
 
+// Takip: bir workspace (galaksi) başka bir workspace'i takip eder.
+export const follows = pgTable(
+	"follows",
+	{
+		followerId: text("follower_id")
+			.notNull()
+			.references(() => workspaces.id, { onDelete: "cascade" }),
+		followingId: text("following_id")
+			.notNull()
+			.references(() => workspaces.id, { onDelete: "cascade" }),
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+	},
+	(t) => ({
+		pk: primaryKey({ columns: [t.followerId, t.followingId] }),
+	}),
+)
+
 // ── Tables ───────────────────────────────────────────────────────
 export const nodes = pgTable(
 	"nodes",

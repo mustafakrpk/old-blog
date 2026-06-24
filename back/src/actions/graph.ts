@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/db"
-import { nodes, links, workspaces, pageViews } from "@/db/schema"
+import { nodes, links, workspaces, pageViews, follows } from "@/db/schema"
 import { eq, and, inArray, count } from "drizzle-orm"
 import type { FocusMode, GraphData } from "@/lib/types"
 import { getWorkspaceBySlug, clampMode } from "@/lib/tenant"
@@ -114,6 +114,21 @@ export async function getUniverseGraph(): Promise<GraphData> {
 			}
 		}
 		if (outLinks.length >= UNIVERSE_LINK_CAP) break
+	}
+
+	// Takip bağlantıları (gerçek/sosyal) — ortak ilgiyle birleştir.
+	const idToSlug = new Map(wss.map((w) => [w.id, w.slug]))
+	const followRows = await db
+		.select({ a: follows.followerId, b: follows.followingId })
+		.from(follows)
+	for (const f of followRows) {
+		const s = idToSlug.get(f.a)
+		const t = idToSlug.get(f.b)
+		if (!s || !t || !peopleSet.has(s) || !peopleSet.has(t)) continue
+		const key = s < t ? `${s}|${t}` : `${t}|${s}`
+		if (seen.has(key)) continue
+		seen.add(key)
+		outLinks.push({ source: s, target: t })
 	}
 
 	return { nodes: outNodes, links: outLinks }
