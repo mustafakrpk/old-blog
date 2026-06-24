@@ -1,0 +1,80 @@
+"use client"
+
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import KnowledgeGraph3D from "@/components/graph/KnowledgeGraph3D"
+import { BRAND } from "@/lib/brand"
+import type { GraphData, GraphNode } from "@/lib/types"
+
+export default function UniverseClient({ data }: { data: GraphData }) {
+	const router = useRouter()
+
+	function handleNodeClick(node: GraphNode) {
+		// node.id = "slug:rawid" → o kişinin galaksisine git
+		const slug = String(node.id).split(":")[0]
+		if (slug) router.push(`/u/${slug}`)
+	}
+
+	const empty = data.nodes.length === 0
+
+	return (
+		<div className="relative w-screen h-screen overflow-hidden bg-[#000011]">
+			<KnowledgeGraph3D
+				graphData={data}
+				onNodeClick={handleNodeClick}
+				backgroundColor="#000011"
+			/>
+
+			{/* Üst overlay */}
+			<div className="absolute top-0 inset-x-0 z-10 flex items-center justify-between px-6 py-5">
+				<span className="font-semibold text-white/90 tracking-tight">
+					<span className="text-purple-400">✦</span> {BRAND}
+				</span>
+				<div className="flex items-center gap-3 text-sm">
+					<Link
+						href="/explore"
+						className="text-white/60 hover:text-white/90 transition-colors"
+					>
+						Keşfet
+					</Link>
+					<Link
+						href="/welcome"
+						className="text-white/60 hover:text-white/90 transition-colors"
+					>
+						Nasıl çalışır
+					</Link>
+					<Link
+						href="/admin/login"
+						className="text-white/60 hover:text-white/90 transition-colors"
+					>
+						Giriş
+					</Link>
+					<Link
+						href="/admin/login"
+						className="px-4 py-2 rounded-full bg-purple-500/30 hover:bg-purple-500/45 border border-purple-400/30 text-white transition-colors"
+					>
+						Kendi galaksini yap
+					</Link>
+				</div>
+			</div>
+
+			{/* Başlık */}
+			<div className="absolute top-24 inset-x-0 z-10 text-center px-6 pointer-events-none">
+				<h1 className="text-3xl sm:text-4xl font-extrabold text-white/95 tracking-tight">
+					Kolektif bilgi evreni
+				</h1>
+				<p className="text-white/45 text-sm mt-2">
+					Her renk bir kişinin beyni. Bir düğüme tıkla → o galaksiye git.
+				</p>
+			</div>
+
+			{empty && (
+				<div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+					<p className="text-white/40 text-sm">
+						Evren henüz boş — ilk galaksiyi sen ekle.
+					</p>
+				</div>
+			)}
+		</div>
+	)
+}

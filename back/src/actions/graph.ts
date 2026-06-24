@@ -14,6 +14,81 @@ export interface PublicWorkspace {
 	views: number
 }
 
+// Workspace defaultMode'una göre public görünür visibility'ler.
+function visibleLevels(
+	defaultMode: string,
+): Array<"professional" | "explorer" | "god_mode"> {
+	if (defaultMode === "god_mode")
+		return ["professional", "explorer", "god_mode"]
+	if (defaultMode === "explorer") return ["professional", "explorer"]
+	return ["professional"]
+}
+
+const UNIVERSE_NODE_CAP = 800
+
+/**
+ * "Evren": listelenen tüm public workspace'lerin node/link'lerini tek graph'ta
+ * birleştirir. Node id'leri slug ile öneklenir (`slug:id`) — global benzersizlik
+ * + tıklamada kaynağı bulmak için. cluster = slug (renk kümesi = kişi).
+ */
+export async function getUniverseGraph(): Promise<GraphData> {
+	const wss = await db
+		.select({
+			id: workspaces.id,
+			slug: workspaces.slug,
+			defaultMode: workspaces.defaultMode,
+		})
+		.from(workspaces)
+		.where(eq(workspaces.listed, true))
+
+	const outNodes: GraphData["nodes"] = []
+	const outLinks: GraphData["links"] = []
+
+	for (const w of wss) {
+		if (outNodes.length >= UNIVERSE_NODE_CAP) break
+
+		const ns = await db
+			.select()
+			.from(nodes)
+			.where(
+				and(
+					eq(nodes.workspaceId, w.id),
+					inArray(nodes.visibility, visibleLevels(w.defaultMode)),
+				),
+			)
+		if (ns.length === 0) continue
+
+		const idset = new Set(ns.map((n) => n.id))
+		for (const n of ns) {
+			outNodes.push({
+				id: `${w.slug}:${n.id}`,
+				title: n.title,
+				type: n.type,
+				cluster: w.slug, // renk = kişi
+				visibility: n.visibility,
+				val: n.val,
+				content: null,
+				meta: null,
+			})
+		}
+
+		const ls = await db
+			.select()
+			.from(links)
+			.where(eq(links.workspaceId, w.id))
+		for (const l of ls) {
+			if (idset.has(l.source) && idset.has(l.target)) {
+				outLinks.push({
+					source: `${w.slug}:${l.source}`,
+					target: `${w.slug}:${l.target}`,
+				})
+			}
+		}
+	}
+
+	return { nodes: outNodes.slice(0, UNIVERSE_NODE_CAP), links: outLinks }
+}
+
 /** Keşfet için: listelenen, en az 1 node'u olan public graph'lar (ziyarete göre). */
 export async function getPublicWorkspaces(): Promise<PublicWorkspace[]> {
 	const wss = await db
