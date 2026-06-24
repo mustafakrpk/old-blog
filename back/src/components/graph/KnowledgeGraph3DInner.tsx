@@ -10,6 +10,7 @@ interface Props {
 	onNodeClick?: (node: GraphNode) => void
 	focusNodeId?: string | null
 	backgroundColor?: string
+	nodeLabelHtml?: (n: GraphNode) => string
 }
 
 // mustafakırpık.com'daki 3D "samanyolu" görünümünün birebir platform portu.
@@ -19,6 +20,7 @@ export default function KnowledgeGraph3DInner({
 	onNodeClick,
 	focusNodeId,
 	backgroundColor = "#000011",
+	nodeLabelHtml,
 }: Props) {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const graphRef = useRef<any>(null)
@@ -100,6 +102,7 @@ export default function KnowledgeGraph3DInner({
 				nodeAutoColorBy="category"
 				nodeLabel={(node: object) => {
 					const n = node as GraphNode
+					if (nodeLabelHtml) return nodeLabelHtml(n)
 					const color = TYPE_COLORS[n.type] || "#fff"
 					return `<b>${n.title}</b><br/><span style="color:${color}">${n.type}</span>`
 				}}

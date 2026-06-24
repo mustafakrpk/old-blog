@@ -23,6 +23,7 @@ interface Props {
 	onNodeClick?: (node: GraphNode) => void
 	focusNodeId?: string | null
 	backgroundColor?: string
+	nodeLabelHtml?: (n: GraphNode) => string
 }
 
 export default function KnowledgeGraph3D(props: Props) {

@@ -10,8 +10,8 @@ export default function UniverseClient({ data }: { data: GraphData }) {
 	const router = useRouter()
 
 	function handleNodeClick(node: GraphNode) {
-		// node.id = "slug:rawid" → o kişinin galaksisine git
-		const slug = String(node.id).split(":")[0]
+		// node.id = slug → o kişinin galaksisine git
+		const slug = String(node.id)
 		if (slug) router.push(`/u/${slug}`)
 	}
 
@@ -23,6 +23,9 @@ export default function UniverseClient({ data }: { data: GraphData }) {
 				graphData={data}
 				onNodeClick={handleNodeClick}
 				backgroundColor="#000011"
+				nodeLabelHtml={(n) =>
+					`<b>${n.title}</b><br/><span style="color:#8b5cf6">${n.val} node</span>`
+				}
 			/>
 
 			{/* Üst overlay */}
