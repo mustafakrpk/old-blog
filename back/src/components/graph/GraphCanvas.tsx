@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import KnowledgeGraph from "./KnowledgeGraph"
+import KnowledgeGraph3D from "./KnowledgeGraph3D"
 import ModeSwitcher from "./ModeSwitcher"
 import type { FocusMode, GraphData, GraphNode } from "@/lib/types"
 
@@ -128,9 +128,8 @@ export default function GraphCanvas({
 					</div>
 				</div>
 			) : (
-				<KnowledgeGraph
+				<KnowledgeGraph3D
 					graphData={graphData}
-					mode={mode}
 					onNodeClick={onNodeClick}
 					focusNodeId={focusNodeId}
 					backgroundColor={backgroundColor}
