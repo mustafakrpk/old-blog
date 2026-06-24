@@ -1,7 +1,10 @@
 import type { Metadata } from "next"
 import { headers } from "next/headers"
+import { eq } from "drizzle-orm"
+import { db } from "@/db"
+import { follows } from "@/db/schema"
 import { BRAND, BRAND_TAGLINE } from "@/lib/brand"
-import { getWorkspaceByDomain } from "@/lib/tenant"
+import { getWorkspaceByDomain, getOptionalWorkspace } from "@/lib/tenant"
 import { getGraphData, getUniverseGraph } from "@/actions/graph"
 import { getTheme } from "@/lib/themes"
 import HomeClient from "@/app/home-client"
@@ -30,8 +33,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 // Kök:
 //  - Host özel bir domain'e bağlıysa → o workspace'in kendi graph'ı
-//  - Değilse → tüm beyinlerin birleştiği "evren" (kolektif samanyolu)
-export default async function RootPage() {
+//  - Değilse → "evren" (kolektif) veya "ağım" (takip edilenler)
+export default async function RootPage({
+	searchParams,
+}: {
+	searchParams: Promise<{ view?: string }>
+}) {
 	const host = (await headers()).get("host") ?? ""
 	const ws = await getWorkspaceByDomain(host)
 
@@ -48,6 +55,28 @@ export default async function RootPage() {
 		)
 	}
 
-	const universe = await getUniverseGraph()
-	return <UniverseClient data={universe} />
+	const me = await getOptionalWorkspace()
+	const view = (await searchParams).view
+	const networkView = view === "network" && Boolean(me)
+
+	let universe
+	if (networkView && me) {
+		const followed = await db
+			.select({ id: follows.followingId })
+			.from(follows)
+			.where(eq(follows.followerId, me.id))
+		universe = await getUniverseGraph({
+			onlyWorkspaceIds: [me.id, ...followed.map((f) => f.id)],
+		})
+	} else {
+		universe = await getUniverseGraph()
+	}
+
+	return (
+		<UniverseClient
+			data={universe}
+			loggedIn={Boolean(me)}
+			view={networkView ? "network" : "all"}
+		/>
+	)
 }

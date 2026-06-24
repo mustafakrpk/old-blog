@@ -36,8 +36,10 @@ const UNIVERSE_LINK_CAP = 2000
  *    ("benzer şeyler düşünenler komşu"). Sonra takip sistemi de eklenecek.
  * id = slug → tıklamada /u/<slug>.
  */
-export async function getUniverseGraph(): Promise<GraphData> {
-	const wss = await db
+export async function getUniverseGraph(opts?: {
+	onlyWorkspaceIds?: string[]
+}): Promise<GraphData> {
+	const allWss = await db
 		.select({
 			id: workspaces.id,
 			slug: workspaces.slug,
@@ -46,6 +48,11 @@ export async function getUniverseGraph(): Promise<GraphData> {
 		})
 		.from(workspaces)
 		.where(eq(workspaces.listed, true))
+
+	// "Ağım" filtresi: yalnızca verilen workspace'ler.
+	const wss = opts?.onlyWorkspaceIds
+		? allWss.filter((w) => opts.onlyWorkspaceIds!.includes(w.id))
+		: allWss
 	if (wss.length === 0) return { nodes: [], links: [] }
 
 	const wsById = new Map(wss.map((w) => [w.id, w]))

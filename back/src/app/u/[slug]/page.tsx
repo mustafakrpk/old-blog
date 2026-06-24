@@ -7,6 +7,7 @@ import HomeClient from "@/app/home-client"
 import MadeWithBadge from "@/components/MadeWithBadge"
 import FollowButton from "@/components/FollowButton"
 import { getGraphData } from "@/actions/graph"
+import { getFollowCounts } from "@/actions/social"
 import { getWorkspaceBySlug, getOptionalWorkspace } from "@/lib/tenant"
 import { BRAND } from "@/lib/brand"
 import { getTheme } from "@/lib/themes"
@@ -42,6 +43,7 @@ export default async function PublicGraphPage({ params }: PageProps) {
 	// Public ziyaretçi workspace'in izin verdiği en yüksek modu görür.
 	const initialData = await getGraphData(slug, ws.defaultMode)
 	const theme = getTheme(ws.theme)
+	const counts = await getFollowCounts(ws.id)
 
 	// Giriş yapan başka bir kullanıcı → "Bağlan" butonu + mevcut takip durumu.
 	const me = await getOptionalWorkspace()
@@ -70,6 +72,18 @@ export default async function PublicGraphPage({ params }: PageProps) {
 			{showFollow && (
 				<FollowButton targetSlug={slug} initialFollowing={isFollowing} />
 			)}
+
+			{/* Takipçi / takip çipi */}
+			<div className="fixed top-4 left-4 z-40 flex items-center gap-3 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/[0.1] px-4 py-2 text-xs text-white/70">
+				<span className="font-medium text-white/90">{ws.name}</span>
+				<span>
+					<b className="text-white/90">{counts.followers}</b> takipçi
+				</span>
+				<span>
+					<b className="text-white/90">{counts.following}</b> takip
+				</span>
+			</div>
+
 			{ws.plan === "free" && <MadeWithBadge />}
 		</>
 	)

@@ -6,7 +6,15 @@ import KnowledgeGraph3D from "@/components/graph/KnowledgeGraph3D"
 import { BRAND } from "@/lib/brand"
 import type { GraphData, GraphNode } from "@/lib/types"
 
-export default function UniverseClient({ data }: { data: GraphData }) {
+export default function UniverseClient({
+	data,
+	loggedIn = false,
+	view = "all",
+}: {
+	data: GraphData
+	loggedIn?: boolean
+	view?: "all" | "network"
+}) {
 	const router = useRouter()
 
 	function handleNodeClick(node: GraphNode) {
@@ -64,11 +72,36 @@ export default function UniverseClient({ data }: { data: GraphData }) {
 			{/* Başlık */}
 			<div className="absolute top-24 inset-x-0 z-10 text-center px-6 pointer-events-none">
 				<h1 className="text-3xl sm:text-4xl font-extrabold text-white/95 tracking-tight">
-					Kolektif bilgi evreni
+					{view === "network" ? "Ağın" : "Kolektif bilgi evreni"}
 				</h1>
 				<p className="text-white/45 text-sm mt-2">
 					Her renk bir kişinin beyni. Bir düğüme tıkla → o galaksiye git.
 				</p>
+
+				{loggedIn && (
+					<div className="inline-flex mt-4 rounded-full bg-white/[0.06] border border-white/[0.1] p-1 pointer-events-auto">
+						<Link
+							href="/"
+							className={`px-4 py-1.5 rounded-full text-xs transition-colors ${
+								view === "all"
+									? "bg-white/[0.12] text-white/90"
+									: "text-white/50 hover:text-white/80"
+							}`}
+						>
+							Tümü
+						</Link>
+						<Link
+							href="/?view=network"
+							className={`px-4 py-1.5 rounded-full text-xs transition-colors ${
+								view === "network"
+									? "bg-white/[0.12] text-white/90"
+									: "text-white/50 hover:text-white/80"
+							}`}
+						>
+							Ağım
+						</Link>
+					</div>
+				)}
 			</div>
 
 			{empty && (

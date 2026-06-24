@@ -1,10 +1,24 @@
 "use server"
 
-import { and, eq } from "drizzle-orm"
+import { and, eq, count } from "drizzle-orm"
+import { randomUUID } from "crypto"
 import { revalidatePath } from "next/cache"
 import { db } from "@/db"
-import { follows } from "@/db/schema"
+import { follows, notifications } from "@/db/schema"
 import { requireWorkspace, getWorkspaceBySlug } from "@/lib/tenant"
+
+/** Bir workspace'in takipçi + takip ettiği sayısı. */
+export async function getFollowCounts(workspaceId: string) {
+	const [followers] = await db
+		.select({ c: count() })
+		.from(follows)
+		.where(eq(follows.followingId, workspaceId))
+	const [following] = await db
+		.select({ c: count() })
+		.from(follows)
+		.where(eq(follows.followerId, workspaceId))
+	return { followers: followers.c, following: following.c }
+}
 
 /**
  * Aktif workspace, hedef slug'ı takip eder/bırakır. Yeni durumu döner (true=takip).
@@ -44,6 +58,16 @@ export async function toggleFollow(targetSlug: string): Promise<boolean> {
 		.insert(follows)
 		.values({ followerId: me.id, followingId: target.id })
 		.onConflictDoNothing()
+
+	// Hedefe bildirim: "X seni takip etti"
+	await db.insert(notifications).values({
+		id: randomUUID(),
+		workspaceId: target.id,
+		type: "follow",
+		actorSlug: me.slug,
+		actorName: me.name,
+	})
+
 	revalidatePath(`/u/${targetSlug}`)
 	return true
 }

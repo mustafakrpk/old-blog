@@ -108,6 +108,19 @@ export const follows = pgTable(
 	}),
 )
 
+// Bildirim: bir workspace'e (alıcı) gelen olaylar (ör. "X seni takip etti").
+export const notifications = pgTable("notifications", {
+	id: text("id").primaryKey(),
+	workspaceId: text("workspace_id")
+		.notNull()
+		.references(() => workspaces.id, { onDelete: "cascade" }),
+	type: text("type").notNull(), // follow
+	actorSlug: text("actor_slug"),
+	actorName: text("actor_name"),
+	read: boolean("read").notNull().default(false),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
 // ── Tables ───────────────────────────────────────────────────────
 export const nodes = pgTable(
 	"nodes",
