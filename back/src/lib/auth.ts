@@ -23,7 +23,19 @@ function slugify(s: string): string {
 	)
 }
 
+// Apex + admin domainleri (Türkçe + punycode) güvenilir origin'ler.
+// Ek origin'leri TRUSTED_ORIGINS env'inden (virgülle) ekleyebilirsin.
+const trustedOrigins = [
+	"http://localhost:3000",
+	"https://mustafakırpık.com",
+	"https://admin.mustafakırpık.com",
+	"https://xn--mustafakrpk-6zbc.com",
+	"https://admin.xn--mustafakrpk-6zbc.com",
+	...(process.env.TRUSTED_ORIGINS?.split(",").map((s) => s.trim()) ?? []),
+].filter(Boolean)
+
 export const auth = betterAuth({
+	trustedOrigins,
 	database: drizzleAdapter(db, {
 		provider: "pg",
 		schema: { user, session, account, verification },
