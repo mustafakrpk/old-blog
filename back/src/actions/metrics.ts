@@ -18,9 +18,15 @@ export async function trackEvent(type: string) {
 
 async function assertFounder() {
 	const session = await auth.api.getSession({ headers: await headers() })
-	const founder = process.env.FOUNDER_EMAIL
-	if (!founder) throw new Error("NO_FOUNDER_EMAIL")
-	if (!session || session.user.email !== founder) throw new Error("FORBIDDEN")
+	// FOUNDER_EMAIL virgülle birden fazla e-posta kabul eder.
+	const founders = (process.env.FOUNDER_EMAIL ?? "")
+		.split(",")
+		.map((s) => s.trim().toLowerCase())
+		.filter(Boolean)
+	if (founders.length === 0) throw new Error("NO_FOUNDER_EMAIL")
+	if (!session || !founders.includes(session.user.email.toLowerCase())) {
+		throw new Error("FORBIDDEN")
+	}
 }
 
 /** Platform geneli kurucu metrikleri. Yalnızca FOUNDER_EMAIL sahibine. */
