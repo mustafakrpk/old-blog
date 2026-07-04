@@ -8,8 +8,9 @@ yapıyor mu, yayınlıyor mu, geri geliyor mu? Tek topluluk, samimi giriş, izle
 ## 0. Lansmandan önce (10 dk kontrol)
 - [ ] `mustafakırpık.com` açılıyor, İngilizce, 3D evren geliyor
 - [ ] Yeni (gizli sekme) hesapla: kaydol → **Epic Fantasy** şablonu → galaksi çıkıyor → `/u/<slug>` yayında
-- [ ] Senin galaksin dolu bir demo gibi duruyor (ziyaretçi "vay" desin)
-- [ ] En az 2-3 örnek galaksi Explore'da görünüyor (boş olmasın)
+- [ ] Showcase galaksiler açılıyor: `/u/aethelgard` (fantasy), `/u/aurelian` (sci-fi), `/u/vaelmyr` (mit)
+- [ ] Explore + evren dolu/renkli görünüyor (showcase'ler listede)
+- [ ] GIF/screenshot için en iyi sahne: **`/u/aethelgard`** (plum tema, 13 yıldız, bağlı)
 
 ---
 
@@ -57,7 +58,7 @@ automatically. Every published world also joins one shared "universe" you can ex
 It's free to use (I'm a solo dev). I'm NOT trying to sell you anything today — I genuinely
 want to know: is this useful for how YOU build worlds? What's missing?
 
-Live demo (my little world): https://mustafakırpık.com/u/mustafa
+Live demo (an example fantasy world): https://mustafakırpık.com/u/aethelgard
 Try it / explore others: https://mustafakırpık.com
 
 Full transparency: this is my project. Happy to answer anything in the comments.
