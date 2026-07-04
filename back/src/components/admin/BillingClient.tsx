@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { createCheckoutSession, createPortalSession } from "@/actions/billing"
+import { trackEvent } from "@/actions/metrics"
 import { PRO_PRICE_LABEL, PRO_PERKS, isPaid } from "@/lib/plan"
 
 export default function BillingClient({
@@ -15,6 +16,7 @@ export default function BillingClient({
 }) {
 	const [pending, startTransition] = useTransition()
 	const [error, setError] = useState<string | null>(null)
+	const [interest, setInterest] = useState(false)
 	const paid = isPaid(plan)
 
 	function go(action: () => Promise<string>) {
@@ -27,6 +29,16 @@ export default function BillingClient({
 				setError("Action failed. Stripe may not be configured.")
 			}
 		})
+	}
+
+	// Ödeme niyetini her zaman kaydet (Stripe canlı değilken bile).
+	function handleUpgrade() {
+		trackEvent("pro_click").catch(() => {})
+		if (billingEnabled) {
+			go(createCheckoutSession)
+		} else {
+			setInterest(true)
+		}
 	}
 
 	return (
@@ -70,16 +82,22 @@ export default function BillingClient({
 							))}
 						</ul>
 						<button
-							onClick={() => go(createCheckoutSession)}
-							disabled={pending || !billingEnabled}
+							onClick={handleUpgrade}
+							disabled={pending}
 							className="mt-5 w-full py-2.5 rounded-xl bg-purple-500/25 hover:bg-purple-500/35 disabled:opacity-40 disabled:cursor-not-allowed text-purple-100 text-sm font-semibold transition-colors"
 						>
 							{pending ? "Redirecting…" : `Upgrade to Pro — ${PRO_PRICE_LABEL}`}
 						</button>
-						{!billingEnabled && (
-							<p className="text-white/30 text-xs mt-2 text-center">
-								Payments are not configured yet (waiting for Stripe keys).
+						{interest ? (
+							<p className="text-green-300/90 text-xs mt-2 text-center">
+								Thanks! We noted your interest — payments open very soon 🎉
 							</p>
+						) : (
+							!billingEnabled && (
+								<p className="text-white/30 text-xs mt-2 text-center">
+									Payments open soon — click above to get notified.
+								</p>
+							)
 						)}
 					</>
 				)}

@@ -231,6 +231,13 @@ export const verification = pgTable("verification", {
 	updatedAt: timestamp("updated_at").defaultNow(),
 })
 
+// Hafif olay kaydı (ör. "pro_click" — ödeme niyeti sinyali).
+export const events = pgTable("events", {
+	id: text("id").primaryKey(),
+	type: text("type").notNull(),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
 // ── Analytics ────────────────────────────────────────────────────
 export const pageViews = pgTable("page_views", {
 	id: text("id").primaryKey(),
