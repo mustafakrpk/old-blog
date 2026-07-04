@@ -41,9 +41,13 @@ export default async function MetricsPage() {
 	}
 
 	const actRate =
-		m.totalUsers > 0 ? Math.round((m.activated / m.totalUsers) * 100) : 0
+		m.totalWorkspaces > 0
+			? Math.round((m.activated / m.totalWorkspaces) * 100)
+			: 0
 	const pubRate =
-		m.totalUsers > 0 ? Math.round((m.published / m.totalUsers) * 100) : 0
+		m.totalWorkspaces > 0
+			? Math.round((m.published / m.totalWorkspaces) * 100)
+			: 0
 	const maxSignup = Math.max(1, ...m.signups.map((s) => s.count))
 
 	return (
