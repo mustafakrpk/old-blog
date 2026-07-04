@@ -21,11 +21,11 @@ export default function OnboardingCard() {
 	return (
 		<div className="bg-white/[0.05] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-8 mb-8">
 			<h2 className="text-xl font-bold text-white/90">
-				Galaksin henüz boş 🌌
+				Your sky is empty — for now 🌌
 			</h2>
 			<p className="text-white/40 text-sm mt-1 mb-6">
-				Bir şablonla başla — saniyeler içinde bağlantılı bir graph'ın olsun.
-				İstediğin gibi düzenleyebilirsin.
+				Start from a template — a connected galaxy in seconds, yours to edit.
+				Pick a world and make it your own.
 			</p>
 
 			<div className="grid grid-cols-2 gap-3">
@@ -40,7 +40,7 @@ export default function OnboardingCard() {
 						<div className="text-white/85 text-sm font-medium">
 							{t.name}
 							{pending && active === t.key && (
-								<span className="text-white/40"> — ekleniyor…</span>
+								<span className="text-white/40"> — adding…</span>
 							)}
 						</div>
 						<div className="text-white/35 text-xs mt-0.5">
@@ -55,7 +55,7 @@ export default function OnboardingCard() {
 					href="/admin/nodes/new"
 					className="text-white/40 hover:text-white/70 text-sm transition-colors"
 				>
-					veya boş başla → ilk node'unu kendin oluştur
+					or start blank → create your first node
 				</a>
 			</div>
 		</div>

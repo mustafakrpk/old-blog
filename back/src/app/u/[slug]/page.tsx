@@ -26,7 +26,7 @@ export async function generateMetadata({
 	if (!ws) return { title: "Not found" }
 
 	const title = `${ws.name} — ${BRAND}`
-	const description = `${ws.name}'in gezilebilir bilgi galaksisini keşfet.`
+	const description = `Explore ${ws.name}'s galaxy on ${BRAND}.`
 	return {
 		title,
 		description,
@@ -77,10 +77,10 @@ export default async function PublicGraphPage({ params }: PageProps) {
 			<div className="fixed top-4 left-4 z-40 flex items-center gap-3 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/[0.1] px-4 py-2 text-xs text-white/70">
 				<span className="font-medium text-white/90">{ws.name}</span>
 				<span>
-					<b className="text-white/90">{counts.followers}</b> takipçi
+					<b className="text-white/90">{counts.followers}</b> followers
 				</span>
 				<span>
-					<b className="text-white/90">{counts.following}</b> takip
+					<b className="text-white/90">{counts.following}</b> following
 				</span>
 			</div>
 

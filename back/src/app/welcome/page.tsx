@@ -1,40 +1,52 @@
 import Link from "next/link"
 import type { Metadata } from "next"
-import { BRAND, BRAND_TAGLINE } from "@/lib/brand"
+import { BRAND } from "@/lib/brand"
 import { PRO_PRICE_LABEL, PRO_PERKS, FREE_NODE_LIMIT } from "@/lib/plan"
 
 export const metadata: Metadata = {
-	title: `${BRAND} — nasıl çalışır`,
-	description: BRAND_TAGLINE,
+	title: `${BRAND} — how it works`,
+	description: "Turn your world, story, or knowledge into a living 3D galaxy.",
 }
 
 const FEATURES = [
 	{
-		icon: "🌌",
-		title: "Gezilebilir galaksi",
-		body: "Notların, projelerin ve fikirlerin birbirine bağlı, interaktif bir evren olarak yaşar.",
+		emoji: "🌠",
+		title: "Built in minutes",
+		body: "Import your notes, wiki, or campaign — or start from a single blank star. Cosmind arranges every character, place, and idea into a galaxy you can navigate.",
 	},
 	{
-		icon: "📥",
-		title: "Obsidian / Markdown import",
-		body: "Vault'unu yükle — [[wiki-link]]'ler otomatik bağlantıya dönüşür.",
+		emoji: "🪐",
+		title: "Your own address",
+		body: "Publish your world at an address that's yours and share it with one link. Readers, players, and fans just click and wander in.",
 	},
 	{
-		icon: "🔗",
-		title: "Tek linkle paylaş",
-		body: "Kendi public adresin: /u/senin-adın. Herkes galaksini gezebilir.",
+		emoji: "🌌",
+		title: "An endless universe",
+		body: "Every galaxy joins one shared cosmos. Drift between worlds, stumble onto new creators, and lose an afternoon exploring minds unlike your own.",
 	},
 	{
-		icon: "✨",
-		title: "Saniyeler içinde başla",
-		body: "Hazır şablonlarla boş ekrandan dolu bir grafiğe 60 saniyede geç.",
+		emoji: "🧭",
+		title: "Follow the makers",
+		body: "Follow the worldbuilders and thinkers you love, watch their galaxies grow, and get a signal whenever new stars appear.",
 	},
 ]
 
 const STEPS = [
-	{ n: "1", t: "Kaydol", d: "Ücretsiz hesabını aç, kendi workspace'ini al." },
-	{ n: "2", t: "Doldur", d: "Şablonla başla ya da Markdown notlarını içe aktar." },
-	{ n: "3", t: "Paylaş", d: "Public linkini paylaş, galaksin keşfedilsin." },
+	{
+		n: "01",
+		t: "Bring in your world",
+		d: "Import notes, a wiki, or a campaign — or add your first entries by hand. Characters, lore, concepts, knowledge, anything.",
+	},
+	{
+		n: "02",
+		t: "Watch it become a galaxy",
+		d: "Cosmind maps your world into stars and constellations you can orbit, zoom into, and explore in real 3D.",
+	},
+	{
+		n: "03",
+		t: "Publish and connect",
+		d: "Go live at your own address, join the shared universe, and follow the creators building alongside you.",
+	},
 ]
 
 export default function WelcomePage() {
@@ -50,25 +62,25 @@ export default function WelcomePage() {
 						href="/explore"
 						className="text-white/60 hover:text-white/90 transition-colors"
 					>
-						Keşfet
+						Explore
 					</Link>
 					<Link
 						href="/"
 						className="text-white/60 hover:text-white/90 transition-colors"
 					>
-						Evren
+						Universe
 					</Link>
 					<Link
 						href="/admin/login"
 						className="text-white/60 hover:text-white/90 transition-colors"
 					>
-						Giriş
+						Sign in
 					</Link>
 					<Link
 						href="/admin/login"
 						className="px-4 py-2 rounded-full bg-white/[0.1] hover:bg-white/[0.16] transition-colors"
 					>
-						Ücretsiz başla
+						Get started
 					</Link>
 				</div>
 			</nav>
@@ -84,25 +96,26 @@ export default function WelcomePage() {
 				/>
 				<div className="max-w-3xl mx-auto text-center px-6 pt-24 pb-20">
 					<h1 className="text-5xl sm:text-6xl font-extrabold leading-[1.05] tracking-tight">
-						Bilgini gezilebilir bir{" "}
-						<span className="text-purple-400">evrene</span> çevir
+						Your World, Reborn as a{" "}
+						<span className="text-purple-400">Galaxy</span>
 					</h1>
 					<p className="text-white/50 text-lg mt-6 max-w-xl mx-auto">
-						{BRAND_TAGLINE} Notların, projelerin ve fikirlerin —
-						bağlantılı, görsel, paylaşılabilir bir bilgi galaksisi.
+						Cosmind turns any world, story, or field of knowledge into a living
+						3D galaxy you can fly through. Build it in minutes, publish it at
+						your own address, and explore a universe made of everyone else&apos;s.
 					</p>
 					<div className="flex items-center justify-center gap-3 mt-9">
 						<Link
 							href="/admin/login"
 							className="px-6 py-3 rounded-full bg-purple-500/30 hover:bg-purple-500/45 border border-purple-400/30 text-white font-semibold transition-colors"
 						>
-							Kendi galaksini yap →
+							Create your galaxy →
 						</Link>
 						<Link
 							href="/"
 							className="px-6 py-3 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-white/80 transition-colors"
 						>
-							Evreni gez
+							Explore the universe
 						</Link>
 					</div>
 				</div>
@@ -115,7 +128,7 @@ export default function WelcomePage() {
 						key={f.title}
 						className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-6"
 					>
-						<div className="text-3xl mb-3">{f.icon}</div>
+						<div className="text-3xl mb-3">{f.emoji}</div>
 						<h3 className="font-semibold text-white/90">{f.title}</h3>
 						<p className="text-white/45 text-sm mt-1.5 leading-relaxed">
 							{f.body}
@@ -127,7 +140,7 @@ export default function WelcomePage() {
 			{/* How it works */}
 			<section className="max-w-4xl mx-auto px-6 py-12">
 				<h2 className="text-center text-2xl font-bold text-white/90 mb-10">
-					Nasıl çalışır?
+					How it works
 				</h2>
 				<div className="grid sm:grid-cols-3 gap-6">
 					{STEPS.map((s) => (
@@ -145,23 +158,23 @@ export default function WelcomePage() {
 			{/* Pricing */}
 			<section className="max-w-4xl mx-auto px-6 py-16">
 				<h2 className="text-center text-2xl font-bold text-white/90 mb-10">
-					Basit fiyatlandırma
+					Simple pricing
 				</h2>
 				<div className="grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
 					<div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-6">
 						<p className="text-white/50 text-sm">Free</p>
 						<p className="text-3xl font-bold mt-1">$0</p>
 						<ul className="mt-5 space-y-2 text-sm text-white/55">
-							<li>✓ 1 galaksi</li>
-							<li>✓ {FREE_NODE_LIMIT} node</li>
-							<li>✓ Public link & paylaşım</li>
+							<li>✓ 1 galaxy</li>
+							<li>✓ {FREE_NODE_LIMIT} nodes</li>
+							<li>✓ Public link & sharing</li>
 							<li>✓ Markdown / Obsidian import</li>
 						</ul>
 						<Link
 							href="/admin/login"
 							className="block text-center mt-6 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-sm font-medium transition-colors"
 						>
-							Ücretsiz başla
+							Get started
 						</Link>
 					</div>
 					<div className="bg-purple-500/[0.08] border border-purple-400/25 rounded-2xl p-6">
@@ -176,7 +189,7 @@ export default function WelcomePage() {
 							href="/admin/login"
 							className="block text-center mt-6 py-2.5 rounded-xl bg-purple-500/30 hover:bg-purple-500/45 text-sm font-semibold transition-colors"
 						>
-							Pro&apos;ya geç
+							Go Pro
 						</Link>
 					</div>
 				</div>
@@ -186,13 +199,13 @@ export default function WelcomePage() {
 			<footer className="border-t border-white/[0.06] mt-12">
 				<div className="max-w-3xl mx-auto text-center px-6 py-16">
 					<h2 className="text-2xl font-bold text-white/90">
-						Galaksini bugün kur
+						Build your galaxy today
 					</h2>
 					<Link
 						href="/admin/login"
 						className="inline-block mt-6 px-6 py-3 rounded-full bg-purple-500/30 hover:bg-purple-500/45 border border-purple-400/30 font-semibold transition-colors"
 					>
-						Ücretsiz başla →
+						Get started →
 					</Link>
 					<p className="text-white/25 text-xs mt-10">
 						<span className="text-purple-400/70">✦</span> {BRAND}

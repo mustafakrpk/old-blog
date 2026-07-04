@@ -1,4 +1,5 @@
 export const TYPE_COLORS: Record<string, string> = {
+	// genel
 	hub: "#ffffff",
 	note: "#a78bfa",
 	blog: "#3b82f6",
@@ -7,6 +8,14 @@ export const TYPE_COLORS: Record<string, string> = {
 	resource: "#06b6d4",
 	hobby: "#ec4899",
 	dataset: "#6366f1",
+	// worldbuilding
+	character: "#34d399",
+	location: "#3b82f6",
+	faction: "#ef4444",
+	event: "#f59e0b",
+	lore: "#a78bfa",
+	item: "#22d3ee",
+	creature: "#ec4899",
 }
 
 export const CLUSTER_POSITIONS: Record<string, { x: number; y: number }> = {

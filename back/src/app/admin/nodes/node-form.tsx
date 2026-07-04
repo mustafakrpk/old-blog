@@ -3,7 +3,7 @@
 import { useState } from "react"
 import type { Node } from "@/db/schema"
 
-const nodeTypes = ["hub", "project", "skill", "blog", "note", "resource", "hobby", "dataset"] as const
+const nodeTypes = ["hub", "character", "location", "faction", "event", "lore", "item", "creature", "project", "skill", "blog", "note", "resource", "hobby", "dataset"] as const
 const clusters = ["core", "career", "library", "playground", "life"] as const
 const visibilities = ["professional", "explorer", "god_mode"] as const
 

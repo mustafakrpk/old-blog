@@ -133,6 +133,7 @@ export default function GraphCanvas({
 					onNodeClick={onNodeClick}
 					focusNodeId={focusNodeId}
 					backgroundColor={backgroundColor}
+					colorByType
 				/>
 			)}
 		</div>

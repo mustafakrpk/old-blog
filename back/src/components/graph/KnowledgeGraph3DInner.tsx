@@ -11,6 +11,8 @@ interface Props {
 	focusNodeId?: string | null
 	backgroundColor?: string
 	nodeLabelHtml?: (n: GraphNode) => string
+	// true: renk node TİPİNE göre (kişi galaksisi). false: category'e göre auto (evren).
+	colorByType?: boolean
 }
 
 // mustafakırpık.com'daki 3D "samanyolu" görünümünün birebir platform portu.
@@ -21,6 +23,7 @@ export default function KnowledgeGraph3DInner({
 	focusNodeId,
 	backgroundColor = "#000011",
 	nodeLabelHtml,
+	colorByType = false,
 }: Props) {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const graphRef = useRef<any>(null)
@@ -99,7 +102,12 @@ export default function KnowledgeGraph3DInner({
 				width={dimensions.width}
 				height={dimensions.height}
 				graphData={data}
-				nodeAutoColorBy="category"
+				{...(colorByType
+					? {
+							nodeColor: (node: object) =>
+								TYPE_COLORS[(node as GraphNode).type] || "#8b8b9a",
+						}
+					: { nodeAutoColorBy: "category" })}
 				nodeLabel={(node: object) => {
 					const n = node as GraphNode
 					if (nodeLabelHtml) return nodeLabelHtml(n)

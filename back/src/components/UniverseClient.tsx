@@ -46,25 +46,25 @@ export default function UniverseClient({
 						href="/explore"
 						className="text-white/60 hover:text-white/90 transition-colors"
 					>
-						Keşfet
+						Explore
 					</Link>
 					<Link
 						href="/welcome"
 						className="text-white/60 hover:text-white/90 transition-colors"
 					>
-						Nasıl çalışır
+						How it works
 					</Link>
 					<Link
 						href="/admin/login"
 						className="text-white/60 hover:text-white/90 transition-colors"
 					>
-						Giriş
+						Sign in
 					</Link>
 					<Link
 						href="/admin/login"
 						className="px-4 py-2 rounded-full bg-purple-500/30 hover:bg-purple-500/45 border border-purple-400/30 text-white transition-colors"
 					>
-						Kendi galaksini yap
+						Create your galaxy
 					</Link>
 				</div>
 			</div>
@@ -72,10 +72,10 @@ export default function UniverseClient({
 			{/* Başlık */}
 			<div className="absolute top-24 inset-x-0 z-10 text-center px-6 pointer-events-none">
 				<h1 className="text-3xl sm:text-4xl font-extrabold text-white/95 tracking-tight">
-					{view === "network" ? "Ağın" : "Kolektif bilgi evreni"}
+					{view === "network" ? "Your network" : "One universe, every mind"}
 				</h1>
 				<p className="text-white/45 text-sm mt-2">
-					Her renk bir kişinin beyni. Bir düğüme tıkla → o galaksiye git.
+					Each color is one mind. Click a star to enter their galaxy.
 				</p>
 
 				{loggedIn && (
@@ -88,7 +88,7 @@ export default function UniverseClient({
 									: "text-white/50 hover:text-white/80"
 							}`}
 						>
-							Tümü
+							All
 						</Link>
 						<Link
 							href="/?view=network"
@@ -98,7 +98,7 @@ export default function UniverseClient({
 									: "text-white/50 hover:text-white/80"
 							}`}
 						>
-							Ağım
+							My network
 						</Link>
 					</div>
 				)}
@@ -107,7 +107,7 @@ export default function UniverseClient({
 			{empty && (
 				<div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
 					<p className="text-white/40 text-sm">
-						Evren henüz boş — ilk galaksiyi sen ekle.
+						The universe is empty — be the first to add a galaxy.
 					</p>
 				</div>
 			)}

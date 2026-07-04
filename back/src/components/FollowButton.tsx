@@ -34,7 +34,7 @@ export default function FollowButton({
 					: "bg-purple-500/30 border-purple-400/40 text-white hover:bg-purple-500/45"
 			}`}
 		>
-			{following ? "Takip ediliyor ✓" : "+ Bağlan"}
+			{following ? "Following ✓" : "+ Follow"}
 		</button>
 	)
 }

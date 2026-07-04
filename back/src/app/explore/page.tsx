@@ -24,21 +24,21 @@ export default async function ExplorePage() {
 					href="/admin/login"
 					className="px-4 py-2 rounded-full bg-white/[0.1] hover:bg-white/[0.16] text-sm transition-colors"
 				>
-					Kendi galaksini yap
+					Create your galaxy
 				</Link>
 			</nav>
 
 			<div className="max-w-5xl mx-auto px-6 py-10">
-				<h1 className="text-3xl font-extrabold tracking-tight">Keşfet</h1>
+				<h1 className="text-3xl font-extrabold tracking-tight">Explore</h1>
 				<p className="text-white/45 mt-2 mb-8">
-					Topluluğun gezilebilir bilgi galaksileri.
+					Explorable galaxies from the community.
 				</p>
 
 				{list.length === 0 ? (
 					<div className="text-white/40 text-sm bg-white/[0.04] border border-white/[0.07] rounded-xl p-8 text-center">
-						Henüz listelenen bir galaksi yok. İlk sen ol →{" "}
+						No galaxies listed yet. Be the first →{" "}
 						<Link href="/admin/login" className="text-purple-300 underline">
-							galaksini yap
+							create yours
 						</Link>
 					</div>
 				) : (
@@ -68,9 +68,9 @@ export default async function ExplorePage() {
 										</p>
 										<p className="text-white/35 text-xs mt-0.5">/u/{w.slug}</p>
 										<div className="flex items-center gap-3 mt-3 text-xs text-white/40">
-											<span>{w.nodes} node</span>
+											<span>{w.nodes} nodes</span>
 											<span>·</span>
-											<span>{w.views} ziyaret</span>
+											<span>{w.views} views</span>
 										</div>
 									</div>
 								</Link>

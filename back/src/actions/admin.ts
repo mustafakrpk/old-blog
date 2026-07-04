@@ -137,10 +137,15 @@ export async function applyTemplate(key: string) {
 		.values(tpl.nodes.map((node) => ({ ...node, workspaceId: ws.id })))
 		.onConflictDoNothing()
 
-	if (tpl.links.length > 0) {
+	// FK güvenliği: yalnızca şablon içinde var olan node'lara giden link'ler.
+	const ids = new Set(tpl.nodes.map((n) => n.id))
+	const validLinks = tpl.links.filter(
+		(l) => ids.has(l.source) && ids.has(l.target),
+	)
+	if (validLinks.length > 0) {
 		await db
 			.insert(links)
-			.values(tpl.links.map((l) => ({ ...l, workspaceId: ws.id })))
+			.values(validLinks.map((l) => ({ ...l, workspaceId: ws.id })))
 			.onConflictDoNothing()
 	}
 

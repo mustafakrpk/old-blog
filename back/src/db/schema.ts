@@ -12,6 +12,7 @@ import {
 
 // ── Enums ────────────────────────────────────────────────────────
 export const nodeTypeEnum = pgEnum("node_type", [
+	// genel (mevcut)
 	"hub",
 	"project",
 	"skill",
@@ -20,6 +21,14 @@ export const nodeTypeEnum = pgEnum("node_type", [
 	"resource",
 	"hobby",
 	"dataset",
+	// worldbuilding (dünya kurma)
+	"character",
+	"location",
+	"faction",
+	"event",
+	"lore",
+	"item",
+	"creature",
 ])
 
 export const clusterEnum = pgEnum("cluster", [

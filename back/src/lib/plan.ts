@@ -2,7 +2,7 @@
 
 export type Plan = "free" | "pro" | "team"
 
-export const PRO_PRICE_LABEL = "$9/ay"
+export const PRO_PRICE_LABEL = "$9/mo"
 
 // Free plan node limiti (Pro = sınırsız).
 export const FREE_NODE_LIMIT = 100
@@ -17,9 +17,9 @@ export function nodeLimit(plan: string): number {
 
 // Pro avantajları (UI'da listelemek için).
 export const PRO_PERKS = [
-	"Sınırsız node",
-	'"Made with" rozeti kalkar',
-	"Özel domain (yakında)",
-	"Premium temalar (yakında)",
-	"Ziyaretçi analytics (yakında)",
+	"Unlimited nodes",
+	'Remove the "Made with" badge',
+	"Custom domain",
+	"Premium themes",
+	"Visitor analytics",
 ]

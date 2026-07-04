@@ -24,6 +24,7 @@ interface Props {
 	focusNodeId?: string | null
 	backgroundColor?: string
 	nodeLabelHtml?: (n: GraphNode) => string
+	colorByType?: boolean
 }
 
 export default function KnowledgeGraph3D(props: Props) {
