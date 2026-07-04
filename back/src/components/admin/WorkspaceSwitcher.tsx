@@ -39,7 +39,7 @@ export default function WorkspaceSwitcher() {
 	}
 
 	function create() {
-		const name = window.prompt("Yeni workspace adı:")
+		const name = window.prompt("New workspace name:")
 		if (!name?.trim()) return
 		startTransition(async () => {
 			await createWorkspace(name)
@@ -98,7 +98,7 @@ export default function WorkspaceSwitcher() {
 						onClick={create}
 						className="w-full text-left px-3 py-2 text-sm text-white/45 hover:text-white/80 hover:bg-white/[0.06] border-t border-white/[0.06] mt-1"
 					>
-						+ Yeni workspace
+						+ New workspace
 					</button>
 				</div>
 			)}

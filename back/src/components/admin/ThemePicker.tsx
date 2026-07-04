@@ -75,7 +75,7 @@ export default function ThemePicker({
 									</span>
 								)}
 								{isSel && !isLockedTheme && (
-									<span className="text-[10px] text-purple-300">aktif ✓</span>
+									<span className="text-[10px] text-purple-300">active ✓</span>
 								)}
 							</div>
 						</button>
@@ -85,11 +85,11 @@ export default function ThemePicker({
 
 			{locked && (
 				<div className="mt-4 rounded-lg bg-purple-500/15 border border-purple-400/25 px-4 py-3 text-sm text-purple-100">
-					Bu tema bir Pro özelliği.{" "}
+					This theme is a Pro feature.{" "}
 					<Link href="/admin/billing" className="underline font-medium">
-						Pro&apos;ya geç
+						Upgrade to Pro
 					</Link>{" "}
-					ile tüm temaları aç.
+					to unlock all themes.
 				</div>
 			)}
 		</div>

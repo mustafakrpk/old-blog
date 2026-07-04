@@ -9,14 +9,14 @@ export default async function AppearancePage() {
 
 	return (
 		<div className="p-8 max-w-3xl">
-			<h1 className="text-2xl font-bold text-white/90 mb-1">Görünüm</h1>
+			<h1 className="text-2xl font-bold text-white/90 mb-1">Appearance</h1>
 			<p className="text-white/30 text-sm mb-6">
-				Public galaksinin temasını seç
+				Choose the theme for your public galaxy
 			</p>
 			<ThemePicker current={ws.theme} plan={ws.plan} />
 
 			<h2 className="text-sm font-medium text-white/50 uppercase tracking-wider mt-10 mb-3">
-				Gizlilik
+				Privacy
 			</h2>
 			<ListedToggle initial={ws.listed} />
 		</div>

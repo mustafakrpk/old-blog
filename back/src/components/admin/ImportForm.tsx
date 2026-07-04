@@ -29,7 +29,7 @@ export default function ImportForm() {
 
 	function addPaste() {
 		if (!pasteBody.trim()) return
-		const name = (pasteName.trim() || "yeni-not") + ".md"
+		const name = (pasteName.trim() || "new-note") + ".md"
 		setFiles((prev) => [...prev, { name, content: pasteBody }])
 		setPasteName("")
 		setPasteBody("")
@@ -46,13 +46,13 @@ export default function ImportForm() {
 			try {
 				const r = await importMarkdown(files)
 				setResult(
-					`${r.nodes} node, ${r.links} bağlantı eklendi` +
-						(r.skippedLinks ? ` (${r.skippedLinks} geçersiz link atlandı)` : ""),
+					`${r.nodes} nodes, ${r.links} links added` +
+						(r.skippedLinks ? ` (${r.skippedLinks} invalid links skipped)` : ""),
 				)
 				setFiles([])
 				router.refresh()
 			} catch {
-				setError("İçe aktarma başarısız oldu.")
+				setError("Import failed.")
 			}
 		})
 	}
@@ -65,12 +65,12 @@ export default function ImportForm() {
 			{/* Dosya yükle */}
 			<div className="bg-white/[0.05] border border-white/[0.08] rounded-xl p-5">
 				<p className="text-white/70 text-sm font-medium mb-1">
-					.md dosyalarını yükle
+					Upload .md files
 				</p>
 				<p className="text-white/35 text-xs mb-3">
-					Obsidian vault'undan birden fazla dosya seçebilirsin.
+					You can select multiple files from your Obsidian vault.
 					<code className="text-purple-300/80"> [[wiki-link]] </code>
-					bağlantıları otomatik çözülür.
+					links are resolved automatically.
 				</p>
 				<input
 					type="file"
@@ -84,18 +84,18 @@ export default function ImportForm() {
 			{/* Yapıştır */}
 			<div className="bg-white/[0.05] border border-white/[0.08] rounded-xl p-5">
 				<p className="text-white/70 text-sm font-medium mb-3">
-					veya tek bir not yapıştır
+					or paste a single note
 				</p>
 				<input
 					value={pasteName}
 					onChange={(e) => setPasteName(e.target.value)}
-					placeholder="Not başlığı / dosya adı"
+					placeholder="Note title / file name"
 					className={inputClass + " mb-2"}
 				/>
 				<textarea
 					value={pasteBody}
 					onChange={(e) => setPasteBody(e.target.value)}
-					placeholder="# Markdown içeriği&#10;&#10;Başka notlara [[bağlantı]] verebilirsin."
+					placeholder="# Markdown content&#10;&#10;You can [[link]] to other notes."
 					rows={5}
 					className={inputClass + " resize-y"}
 				/>
@@ -104,7 +104,7 @@ export default function ImportForm() {
 					disabled={!pasteBody.trim()}
 					className="mt-2 px-3 py-1.5 rounded-lg bg-white/[0.08] hover:bg-white/[0.14] disabled:opacity-40 text-white/80 text-xs font-medium transition-colors"
 				>
-					Listeye ekle
+					Add to list
 				</button>
 			</div>
 
@@ -112,7 +112,7 @@ export default function ImportForm() {
 			{files.length > 0 && (
 				<div className="bg-white/[0.05] border border-white/[0.08] rounded-xl p-5">
 					<p className="text-white/60 text-xs uppercase tracking-wider mb-3">
-						İçe aktarılacak ({files.length})
+						To import ({files.length})
 					</p>
 					<ul className="space-y-1.5 mb-4">
 						{files.map((f, i) => (
@@ -125,7 +125,7 @@ export default function ImportForm() {
 									onClick={() => removeAt(i)}
 									className="text-white/30 hover:text-red-400 text-xs ml-3"
 								>
-									kaldır
+									remove
 								</button>
 							</li>
 						))}
@@ -135,7 +135,7 @@ export default function ImportForm() {
 						disabled={pending}
 						className="px-4 py-2 rounded-lg bg-purple-500/25 hover:bg-purple-500/35 disabled:opacity-40 text-purple-100 text-sm font-medium transition-colors"
 					>
-						{pending ? "İçe aktarılıyor…" : `${files.length} dosyayı içe aktar`}
+						{pending ? "Importing…" : `Import ${files.length} files`}
 					</button>
 				</div>
 			)}
@@ -144,7 +144,7 @@ export default function ImportForm() {
 				<div className="rounded-lg bg-green-500/15 border border-green-500/25 px-4 py-3 text-green-200 text-sm">
 					✓ {result} —{" "}
 					<a href="/admin/nodes" className="underline">
-						node'lara git
+						go to nodes
 					</a>
 				</div>
 			)}

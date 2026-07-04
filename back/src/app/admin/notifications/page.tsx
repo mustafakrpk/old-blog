@@ -10,12 +10,12 @@ export default async function NotificationsPage() {
 	return (
 		<div className="p-8 max-w-2xl">
 			<MarkRead />
-			<h1 className="text-2xl font-bold text-white/90 mb-1">Bildirimler</h1>
-			<p className="text-white/30 text-sm mb-6">Galaksinle ilgili olaylar</p>
+			<h1 className="text-2xl font-bold text-white/90 mb-1">Notifications</h1>
+			<p className="text-white/30 text-sm mb-6">Events across your galaxy</p>
 
 			{items.length === 0 ? (
 				<p className="text-white/40 text-sm bg-white/[0.04] border border-white/[0.07] rounded-xl p-6 text-center">
-					Henüz bildirim yok.
+					No notifications yet.
 				</p>
 			) : (
 				<div className="space-y-2">
@@ -38,7 +38,7 @@ export default async function NotificationsPage() {
 										>
 											{n.actorName || n.actorSlug}
 										</Link>{" "}
-										seni takip etmeye başladı
+										started following you
 									</>
 								) : (
 									n.type

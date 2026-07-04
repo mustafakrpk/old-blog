@@ -14,8 +14,8 @@ export default async function BillingPage({
 
 	return (
 		<div className="p-8 max-w-3xl">
-			<h1 className="text-2xl font-bold text-white/90 mb-1">Faturalandırma</h1>
-			<p className="text-white/30 text-sm mb-6">Planını yönet</p>
+			<h1 className="text-2xl font-bold text-white/90 mb-1">Billing</h1>
+			<p className="text-white/30 text-sm mb-6">Manage your plan</p>
 			<BillingClient
 				plan={ws.plan}
 				billingEnabled={isBillingEnabled()}

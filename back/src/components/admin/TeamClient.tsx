@@ -46,8 +46,8 @@ export default function TeamClient({
 			} catch (e) {
 				setMsg(
 					e instanceof Error && e.message === "LAST_OWNER"
-						? "Son owner'ı kaldıramazsın."
-						: "İşlem başarısız.",
+						? "You can't remove the last owner."
+						: "Action failed.",
 				)
 			}
 		})
@@ -61,13 +61,13 @@ export default function TeamClient({
 		<div className="space-y-8 max-w-2xl">
 			{canManage && (
 				<div className="bg-white/[0.05] border border-white/[0.08] rounded-xl p-5">
-					<p className="text-white/70 text-sm font-medium mb-3">Üye davet et</p>
+					<p className="text-white/70 text-sm font-medium mb-3">Invite member</p>
 					<div className="flex gap-2">
 						<input
 							type="email"
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
-							placeholder="kisi@example.com"
+							placeholder="person@example.com"
 							className="flex-1 px-3 py-2 rounded-lg bg-white/[0.06] border border-white/[0.08] text-white/80 text-sm outline-none focus:border-white/15 placeholder-white/20"
 						/>
 						<select
@@ -83,17 +83,17 @@ export default function TeamClient({
 						</select>
 						<button
 							onClick={() =>
-								run(() => inviteMember(email, role), "Davet gönderildi")
+								run(() => inviteMember(email, role), "Invite sent")
 							}
 							disabled={busy || !email}
 							className="px-4 py-2 rounded-lg bg-purple-500/25 hover:bg-purple-500/35 disabled:opacity-40 text-purple-100 text-sm font-medium"
 						>
-							Davet et
+							Invite
 						</button>
 					</div>
 					<p className="text-white/30 text-xs mt-2">
-						Hesabı olan kişi hemen eklenir; olmayan kişi kaydolunca otomatik
-						katılır.
+						People with an account are added right away; others join
+						automatically once they sign up.
 					</p>
 				</div>
 			)}
@@ -103,7 +103,7 @@ export default function TeamClient({
 			{/* Üyeler */}
 			<div>
 				<p className="text-white/40 text-xs uppercase tracking-wider mb-3">
-					Üyeler ({members.length})
+					Members ({members.length})
 				</p>
 				<div className="space-y-2">
 					{members.map((m) => (
@@ -140,7 +140,7 @@ export default function TeamClient({
 										disabled={busy}
 										className="text-white/30 hover:text-red-400 text-xs"
 									>
-										çıkar
+										remove
 									</button>
 								)}
 							</div>
@@ -153,7 +153,7 @@ export default function TeamClient({
 			{pending.length > 0 && (
 				<div>
 					<p className="text-white/40 text-xs uppercase tracking-wider mb-3">
-						Bekleyen davetler ({pending.length})
+						Pending invites ({pending.length})
 					</p>
 					<div className="space-y-2">
 						{pending.map((p) => (
@@ -171,7 +171,7 @@ export default function TeamClient({
 										disabled={busy}
 										className="text-white/30 hover:text-red-400 text-xs"
 									>
-										iptal
+										cancel
 									</button>
 								)}
 							</div>

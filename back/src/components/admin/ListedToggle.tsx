@@ -22,9 +22,9 @@ export default function ListedToggle({ initial }: { initial: boolean }) {
 	return (
 		<div className="flex items-center justify-between bg-white/[0.04] border border-white/[0.07] rounded-xl p-4">
 			<div>
-				<p className="text-white/80 text-sm font-medium">Keşfet&apos;te listele</p>
+				<p className="text-white/80 text-sm font-medium">List in Explore</p>
 				<p className="text-white/35 text-xs mt-0.5">
-					Açıkken galaksin /explore sayfasında herkese görünür.
+					When on, your galaxy is visible to everyone on the /explore page.
 				</p>
 			</div>
 			<button

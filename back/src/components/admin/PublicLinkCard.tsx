@@ -21,7 +21,7 @@ export default function PublicLinkCard({ slug }: { slug: string }) {
 	return (
 		<div className="bg-white/[0.05] backdrop-blur-xl border border-white/[0.08] rounded-xl p-5 mb-8">
 			<p className="text-white/30 text-xs font-medium uppercase tracking-wider mb-2">
-				Public galaksin
+				Your public galaxy
 			</p>
 			<div className="flex items-center gap-2">
 				<code className="flex-1 truncate text-sm text-purple-300/90 bg-black/30 rounded-lg px-3 py-2 border border-white/[0.06]">
@@ -31,7 +31,7 @@ export default function PublicLinkCard({ slug }: { slug: string }) {
 					onClick={copy}
 					className="px-3 py-2 rounded-lg bg-white/[0.08] hover:bg-white/[0.14] text-white/80 text-xs font-medium transition-colors whitespace-nowrap"
 				>
-					{copied ? "Kopyalandı ✓" : "Kopyala"}
+					{copied ? "Copied ✓" : "Copy"}
 				</button>
 				<a
 					href={url}
@@ -39,7 +39,7 @@ export default function PublicLinkCard({ slug }: { slug: string }) {
 					rel="noopener noreferrer"
 					className="px-3 py-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 text-xs font-medium transition-colors whitespace-nowrap"
 				>
-					Aç ↗
+					Open ↗
 				</a>
 			</div>
 		</div>
