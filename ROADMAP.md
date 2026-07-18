@@ -3,8 +3,8 @@
 > Kişisel bir bilgi grafiğinden, **herkesin kendi gezilebilir bilgi galaksisini
 > kurabileceği** global, freemium bir SaaS platformuna evrim planı.
 
-**Marka adı:** `TBD` (bu dokümanda platform domaini için `PLATFORM_DOMAIN` placeholder'ı kullanılır)
-**Son güncelleme:** 2026-06-23
+**Marka adı:** `Stelvia` (bu dokümanda platform domaini için `PLATFORM_DOMAIN` placeholder'ı kullanılır)
+**Son güncelleme:** 2026-07-18
 
 ---
 

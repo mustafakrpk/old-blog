@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { BRAND, BRAND_TAGLINE } from "@/lib/brand"
 
 const inter = Inter({
 	variable: "--font-inter",
@@ -8,9 +9,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-	title: "Mustafa Kirpik | Digital Garden",
-	description:
-		"An interactive knowledge graph of projects, skills, and ideas.",
+	title: BRAND,
+	description: BRAND_TAGLINE,
 }
 
 export default function RootLayout({

@@ -7,8 +7,8 @@ import { BRAND } from "@/lib/brand"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-	title: `Keşfet — ${BRAND}`,
-	description: "Topluluğun gezilebilir bilgi galaksilerini keşfet.",
+	title: `Explore — ${BRAND}`,
+	description: "Explore the community's navigable knowledge galaxies.",
 }
 
 export default async function ExplorePage() {

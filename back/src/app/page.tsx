@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 	const ws = await getWorkspaceByDomain(host)
 	if (ws) {
 		const title = `${ws.name} — ${BRAND}`
-		const description = `${ws.name}'in gezilebilir bilgi galaksisi.`
+		const description = `${ws.name}'s explorable knowledge galaxy.`
 		return {
 			title,
 			description,
@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 		}
 	}
 	return {
-		title: `${BRAND} — kolektif bilgi evreni`,
+		title: `${BRAND} — the collective knowledge universe`,
 		description: BRAND_TAGLINE,
 	}
 }

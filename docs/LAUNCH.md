@@ -1,4 +1,4 @@
-# Cosmind — Soft Launch Playbook (worldbuilding)
+# Stelvia — Soft Launch Playbook (worldbuilding)
 
 Amaç: **satmak değil, öğrenmek.** Gerçek worldbuilder'lar kaydolup galaksisini
 yapıyor mu, yayınlıyor mu, geri geliyor mu? Tek topluluk, samimi giriş, izle.
@@ -21,7 +21,7 @@ yapıyor mu, yayınlıyor mu, geri geliyor mu? Tek topluluk, samimi giriş, izle
    3D galaksinin yavaşça dönüşü + bir düğüme tıklayıp kamera yakınlaşması.
    (Ekran kaydı: Windows `Win+Alt+R` veya ShareX / ScreenToGif.)
 2. **"Before/After" görsel** — solda sıkıcı bir not/wiki listesi, sağda aynı
-   şeyin Cosmind galaksisi. "Your wiki → a galaxy" hikâyesi.
+   şeyin Stelvia galaksisi. "Your wiki → a galaxy" hikâyesi.
 3. **Kolektif evren görseli** — `mustafakırpık.com` ana ekran (renkli yıldızlar).
    "Every world joins one universe" mesajı.
 
@@ -48,7 +48,7 @@ r/worldbuilding self-promo'yu kısıtlar. Yapma listesi:
 Hey worldbuilders — I've spent months on a side project and finally want to show it.
 
 I love building worlds but hated that my lore lived in flat wikis and endless docs.
-So I built Cosmind: it turns your world — characters, locations, factions, events,
+So I built Stelvia: it turns your world — characters, locations, factions, events,
 lore — into a living 3D galaxy you can fly through, and publish at your own link.
 
 You can start from a template (fantasy, sci-fi, mythology, noir, a TTRPG campaign)

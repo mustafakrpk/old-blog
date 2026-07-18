@@ -60,7 +60,7 @@ export async function setActiveWorkspace(id: string) {
 /** Yeni (takım) workspace oluşturur ve aktif yapar. */
 export async function createWorkspace(name: string) {
 	const uid = await currentUserId()
-	const clean = name.trim() || "Takım"
+	const clean = name.trim() || "Team"
 	const wsId = randomUUID()
 	const slug = `${slugify(clean)}-${randomUUID().slice(0, 6)}`
 

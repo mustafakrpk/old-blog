@@ -12,7 +12,7 @@ const FEATURES = [
 	{
 		emoji: "🌠",
 		title: "Built in minutes",
-		body: "Import your notes, wiki, or campaign — or start from a single blank star. Cosmind arranges every character, place, and idea into a galaxy you can navigate.",
+		body: `Import your notes, wiki, or campaign — or start from a single blank star. ${BRAND} arranges every character, place, and idea into a galaxy you can navigate.`,
 	},
 	{
 		emoji: "🪐",
@@ -40,7 +40,7 @@ const STEPS = [
 	{
 		n: "02",
 		t: "Watch it become a galaxy",
-		d: "Cosmind maps your world into stars and constellations you can orbit, zoom into, and explore in real 3D.",
+		d: `${BRAND} maps your world into stars and constellations you can orbit, zoom into, and explore in real 3D.`,
 	},
 	{
 		n: "03",
@@ -100,7 +100,7 @@ export default function WelcomePage() {
 						<span className="text-purple-400">Galaxy</span>
 					</h1>
 					<p className="text-white/50 text-lg mt-6 max-w-xl mx-auto">
-						Cosmind turns any world, story, or field of knowledge into a living
+						{BRAND} turns any world, story, or field of knowledge into a living
 						3D galaxy you can fly through. Build it in minutes, publish it at
 						your own address, and explore a universe made of everyone else&apos;s.
 					</p>
