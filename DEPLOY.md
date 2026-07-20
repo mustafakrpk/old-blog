@@ -234,39 +234,36 @@ pm2 logs digital-brain --lines 30 --nostream   # hata var mı kontrol
 
 `/var/www/digital-brain/deploy.sh` dosyası oluştur:
 
+> ⚠️ **Bu script'in eski hâli `front/` build edip `httpdocs`'u `rm -rf` ile siliyordu.**
+> Kök domain artık Next.js kolektif evrenini sunuyor (`x-powered-by: Next.js`),
+> Vite sitesi servis edilmiyor — `front/` 2026-04-28'den beri dokunulmamış ölü kod.
+> O adımlar çıkarıldı; `rm -rf $HTTPDOCS/*` gereksiz bir risk oluşturuyordu.
+
 ```bash
 #!/bin/bash
 set -e
 
 echo "→ Pull..."
 cd /var/www/digital-brain
+git stash push bun.lockb 2>/dev/null || true   # kirli lockfile pull'u abort ettirir
 git pull
 
 echo "→ Back build..."
 cd back
-sudo -u mustafa bun install
-sudo -u mustafa bun run build
-sudo -u mustafa pm2 restart digital-brain
-
-echo "→ Front build..."
-cd ../front
-bun install
+bun install        # sadece yeni paket eklendiyse gerekli, zararsız
 bun run build
+pm2 restart digital-brain
 
-echo "→ Deploy front to httpdocs..."
-HTTPDOCS=/var/www/vhosts/xn--mustafakrpk-6zbc.com/httpdocs
-rm -rf $HTTPDOCS/*
-cp -r dist/* $HTTPDOCS/
-# Klasörler psaserv group, dosyalar psacln group (Plesk standardı)
-find $HTTPDOCS -type d -exec chown mustafa:psaserv {} \;
-find $HTTPDOCS -type f -exec chown mustafa:psacln {} \;
-find $HTTPDOCS -type d -exec chmod 750 {} \;
-find $HTTPDOCS -type f -exec chmod 644 {} \;
+echo "→ Doğrulama..."
+curl -s https://xn--mustafakrpk-6zbc.com | grep -o "<title>[^<]*</title>"
 
 echo "✓ Deploy tamamlandı"
 echo
-sudo -u mustafa pm2 list
+pm2 list
 ```
+
+> Not: `pm2` komutları sunucuya `mustafa` olarak bağlandığın varsayımıyla yazıldı.
+> Root olarak çalıştırıyorsan `pm2` yerine `sudo -u mustafa pm2` kullan.
 
 Çalıştırılabilir yap:
 ```bash

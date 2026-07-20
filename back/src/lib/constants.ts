@@ -40,17 +40,17 @@ export const MODE_CONFIG: Record<
 > = {
 	professional: {
 		label: "Professional",
-		description: "Core skills & projects",
+		description: "The public face of your world",
 		icon: "briefcase",
 	},
 	explorer: {
 		label: "Explorer",
-		description: "Blog posts & deep dives",
+		description: "Deeper lore & connections",
 		icon: "compass",
 	},
 	god_mode: {
 		label: "God Mode",
-		description: "Everything + datasets",
+		description: "Everything, nothing hidden",
 		icon: "zap",
 	},
 }
