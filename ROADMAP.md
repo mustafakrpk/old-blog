@@ -4,7 +4,7 @@
 > kurabileceği** global, freemium bir SaaS platformuna evrim planı.
 
 **Marka adı:** `Stelvia` (bu dokümanda platform domaini için `PLATFORM_DOMAIN` placeholder'ı kullanılır)
-**Son güncelleme:** 2026-07-18
+**Son güncelleme:** 2026-07-20
 
 ---
 

@@ -194,15 +194,27 @@ git push
 **Sunucu:**
 ```bash
 cd /var/www/digital-brain
+git stash push bun.lockb   # sunucuda kirli kalıyor, pull'u abort ettiriyor
 git pull
 
 cd back
 bun install      # sadece yeni paket eklendiyse
 bun run build
 
-sudo -u mustafa pm2 restart digital-brain
+pm2 restart digital-brain   # root isen: sudo -u mustafa pm2 restart digital-brain
 pm2 logs digital-brain --lines 30 --nostream   # hata var mı kontrol
 ```
+
+> ⚠️ **`git pull`'un gerçekten çalıştığını doğrula.** Sunucudaki `bun.lockb` yerel
+> değişikliği yüzünden pull `error: Your local changes ... would be overwritten`
+> deyip abort edebilir. Bu durumda `bun run build` **eski kodu** derler, çıktı
+> başarılı görünür ve deploy olmadığı halde olmuş sanılır. Pull çıktısında
+> güncellenen dosya listesini gördüğünden emin ol.
+>
+> Deploy sonrası canlıdan doğrula (build çıktısına güvenme):
+> ```bash
+> curl -s https://xn--mustafakrpk-6zbc.com | grep -o "<title>[^<]*</title>"
+> ```
 
 > **DB schema değiştiyse** (yeni tablo, kolon vb): önce migration çalıştır:
 > ```bash
@@ -270,7 +282,13 @@ Artık tek komut:
 
 ## 🛠 Sık Kullanılan Komutlar
 
-### PM2 (mustafa user altında çalışıyor — `sudo -u mustafa` prefix'i ZORUNLU)
+### PM2 (uygulama `mustafa` user'ı altında çalışıyor)
+
+> ⚠️ **Aşağıdaki komutlar root olarak bağlandığın varsayımıyla yazılmış.**
+> Sunucuya **`mustafa` olarak** bağlandıysan `sudo -u mustafa` prefix'ini **KULLANMA** —
+> o kullanıcı sudoers'da değil, "mustafa is not in the sudoers file" hatası alırsın.
+> Düz `pm2 list`, `pm2 restart digital-brain` şeklinde çalıştır.
+
 ```bash
 sudo -u mustafa pm2 list                                    # çalışan uygulamalar
 sudo -u mustafa pm2 logs digital-brain                      # canlı log
