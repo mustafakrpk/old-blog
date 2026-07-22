@@ -51,6 +51,7 @@ export default async function RootPage({
 				slug={ws.slug}
 				initialMode={ws.defaultMode}
 				bg={theme.bg}
+				accent={theme.accent}
 			/>
 		)
 	}

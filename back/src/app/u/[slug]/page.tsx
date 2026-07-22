@@ -68,19 +68,33 @@ export default async function PublicGraphPage({ params }: PageProps) {
 				slug={slug}
 				initialMode={ws.defaultMode}
 				bg={theme.bg}
+				accent={theme.accent}
 			/>
 			{showFollow && (
 				<FollowButton targetSlug={slug} initialFollowing={isFollowing} />
 			)}
 
-			{/* Takipçi / takip çipi */}
-			<div className="fixed top-4 left-4 z-40 flex items-center gap-3 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/[0.1] px-4 py-2 text-xs text-white/70">
-				<span className="font-medium text-white/90">{ws.name}</span>
-				<span>
-					<b className="text-white/90">{counts.followers}</b> followers
+			{/* Kimlik çipi — üst-sol artık yalnız buna ait (mod seçici alta taşındı).
+			    Dar ekranda takip sayıları gizlenir, isim kalır. */}
+			<div
+				className="glass fixed top-4 left-4 z-40 flex items-center gap-3 rounded-full px-4 py-2 text-xs text-[var(--text-2)] max-w-[calc(100vw-8rem)] anim-rise"
+				style={{ "--accent": theme.accent } as React.CSSProperties}
+			>
+				<span
+					className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+					style={{
+						backgroundColor: theme.accent,
+						boxShadow: `0 0 12px 1px ${theme.accent}`,
+					}}
+				/>
+				<span className="font-medium text-[var(--text-1)] truncate">
+					{ws.name}
 				</span>
-				<span>
-					<b className="text-white/90">{counts.following}</b> following
+				<span className="hidden sm:inline whitespace-nowrap">
+					<b className="text-[var(--text-1)]">{counts.followers}</b> followers
+				</span>
+				<span className="hidden sm:inline whitespace-nowrap">
+					<b className="text-[var(--text-1)]">{counts.following}</b> following
 				</span>
 			</div>
 

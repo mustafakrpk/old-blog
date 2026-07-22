@@ -88,20 +88,22 @@ export default function SearchOverlay({
 	}, [])
 
 	return (
+		// Üst-sol kimlik çipi ve üst-sağ takip butonunun altına oturur.
 		<div
 			ref={containerRef}
-			className="fixed top-[12%] left-1/2 -translate-x-1/2 z-30 w-full max-w-lg px-4"
+			className="fixed top-20 sm:top-[14%] left-1/2 -translate-x-1/2 z-30 w-full max-w-lg px-4 anim-rise"
+			style={{ animationDelay: "600ms" }}
 		>
 			<div
 				className={`
-					relative backdrop-blur-2xl rounded-2xl
-					border transition-all duration-300
-					${
-						isFocused
-							? "bg-white/[0.08] border-white/20 shadow-[0_8px_40px_rgba(0,0,0,0.5)]"
-							: "bg-white/[0.05] border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.3)]"
-					}
+					relative rounded-2xl transition-all duration-300
+					${isFocused ? "glass-2" : "glass"}
 				`}
+				style={
+					isFocused
+						? { boxShadow: "var(--shadow-lift), 0 0 60px -24px var(--accent)" }
+						: undefined
+				}
 			>
 				<div className="flex items-center px-5 py-3.5">
 					<svg
@@ -167,7 +169,7 @@ export default function SearchOverlay({
 				</div>
 
 				{showResults && (
-					<div className="border-t border-white/10 px-2 py-2 max-h-72 overflow-y-auto">
+					<div className="border-t border-[var(--border-1)] px-2 py-2 max-h-72 overflow-y-auto">
 						{filteredNodes.map((node) => {
 							const color =
 								TYPE_COLORS[node.type] || "#fff"
@@ -178,9 +180,9 @@ export default function SearchOverlay({
 										handleSelect(node.id)
 									}
 									className="
-										w-full flex items-center gap-3 px-3 py-2.5
+										focus-ring w-full flex items-center gap-3 px-3 py-2.5
 										rounded-xl text-left
-										hover:bg-white/[0.08] transition-colors
+										hover:bg-[var(--surface-2)] transition-colors
 									"
 								>
 									<span
@@ -216,8 +218,8 @@ export default function SearchOverlay({
 			</div>
 
 			{!isFocused && !query && (
-				<p className="text-center text-white/15 text-xs mt-3 select-none">
-					Click a node or search to explore
+				<p className="text-center text-[var(--text-4)] text-xs mt-3 select-none">
+					Click a star or search to explore
 				</p>
 			)}
 		</div>

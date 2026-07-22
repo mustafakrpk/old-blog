@@ -1,6 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import StarCluster from "./StarCluster"
 import type { GraphData, GraphNode } from "@/lib/types"
 
 // ForceGraph3D WebGL/window kullanır → SSR'de yüklenmemeli.
@@ -10,10 +11,7 @@ const Inner = dynamic(() => import("./KnowledgeGraph3DInner"), {
 	ssr: false,
 	loading: () => (
 		<div className="absolute inset-0 flex items-center justify-center">
-			<div className="relative w-16 h-16">
-				<div className="absolute inset-0 rounded-full border-2 border-white/10" />
-				<div className="absolute inset-0 rounded-full border-2 border-t-purple-500 border-r-transparent border-b-transparent border-l-transparent animate-spin" />
-			</div>
+			<StarCluster />
 		</div>
 	),
 })

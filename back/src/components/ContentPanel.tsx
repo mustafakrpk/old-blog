@@ -45,25 +45,37 @@ export default function ContentPanel({ node, onClose }: ContentPanelProps) {
 				`}
 			/>
 
-			{/* Panel */}
+			{/* Panel — mobilde bottom-sheet, sm+ ekranda sağ panel.
+			    Telefonda tam ekran kaplayıp grafiği yok etmiyor. */}
 			<div
 				ref={panelRef}
 				className={`
-					fixed top-0 right-0 z-50 h-full w-full max-w-xl
-					bg-[#0c0c14]/95 backdrop-blur-2xl
-					border-l border-white/[0.06]
-					shadow-[-8px_0_40px_rgba(0,0,0,0.6)]
-					transition-transform duration-300 ease-out
-					${node ? "translate-x-0" : "translate-x-full"}
+					fixed z-50 bg-[#0c0c14]/95 backdrop-blur-2xl
+					inset-x-0 bottom-0 h-[82vh] rounded-t-3xl border-t border-[var(--border-1)]
+					sm:inset-x-auto sm:top-0 sm:right-0 sm:h-full sm:w-full sm:max-w-xl
+					sm:rounded-none sm:border-t-0 sm:border-l
+					shadow-[var(--shadow-panel)]
+					transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
+					${
+						node
+							? "translate-y-0 sm:translate-x-0"
+							: "translate-y-full sm:translate-y-0 sm:translate-x-full"
+					}
 				`}
 			>
 				{node && (
 					<div className="h-full flex flex-col">
+						{/* Sürükleme tutamağı (yalnız mobil) */}
+						<div className="sm:hidden flex justify-center pt-3 pb-1 flex-shrink-0">
+							<span className="w-10 h-1 rounded-full bg-[var(--border-2)]" />
+						</div>
+
 						{/* Header */}
-						<div className="flex-shrink-0 px-8 pt-8 pb-4">
+						<div className="flex-shrink-0 px-6 sm:px-8 pt-5 sm:pt-8 pb-4">
 							<button
 								onClick={onClose}
-								className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-white/[0.05] hover:bg-white/[0.1] transition-colors text-white/40 hover:text-white/70"
+								aria-label="Close"
+								className="focus-ring absolute top-4 sm:top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-[var(--surface-1)] hover:bg-[var(--surface-3)] transition-colors text-[var(--text-3)] hover:text-[var(--text-1)]"
 							>
 								<svg
 									className="w-4 h-4"
@@ -105,13 +117,13 @@ export default function ContentPanel({ node, onClose }: ContentPanelProps) {
 							)}
 
 							{/* Title */}
-							<h2 className="text-2xl font-bold text-white/90 leading-tight">
+							<h2 className="display text-2xl sm:text-3xl font-bold text-[var(--text-1)] leading-tight">
 								{node.title}
 							</h2>
 
 							{/* Description */}
 							{meta?.description && (
-								<p className="text-white/40 text-sm mt-2 leading-relaxed">
+								<p className="text-[var(--text-2)] text-sm mt-2.5 leading-relaxed">
 									{meta.description}
 								</p>
 							)}
@@ -136,7 +148,8 @@ export default function ContentPanel({ node, onClose }: ContentPanelProps) {
 									href={meta.link}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="inline-flex items-center gap-1.5 mt-3 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+									className="focus-ring inline-flex items-center gap-1.5 mt-3 text-xs transition-opacity hover:opacity-70"
+									style={{ color: "var(--accent)" }}
 								>
 									<svg
 										className="w-3 h-3"
@@ -157,10 +170,10 @@ export default function ContentPanel({ node, onClose }: ContentPanelProps) {
 						</div>
 
 						{/* Divider */}
-						<div className="mx-8 border-t border-white/[0.06]" />
+						<div className="mx-6 sm:mx-8 border-t border-[var(--border-1)]" />
 
 						{/* Content */}
-						<div className="flex-1 overflow-y-auto px-8 py-6 scroll-hide">
+						<div className="flex-1 overflow-y-auto px-6 sm:px-8 py-6 scroll-hide">
 							{node.content ? (
 								<div className="prose-custom">
 									<Markdown>

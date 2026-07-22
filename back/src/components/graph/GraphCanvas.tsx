@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react"
 import KnowledgeGraph3D from "./KnowledgeGraph3D"
 import ModeSwitcher from "./ModeSwitcher"
+import StarCluster from "./StarCluster"
 import type { FocusMode, GraphData, GraphNode } from "@/lib/types"
 
 interface GraphCanvasProps {
@@ -14,6 +15,8 @@ interface GraphCanvasProps {
 	/** Hangi workspace'in graph'ı (multi-tenant viewer). Yoksa API default'a düşer. */
 	slug?: string
 	backgroundColor?: string
+	/** Sinematik giriş: false iken graph görünmez, true olunca yumuşakça belirir. */
+	entered?: boolean
 }
 
 function transformBlocksData(blocks: {
@@ -52,6 +55,7 @@ export default function GraphCanvas({
 	onDataChange,
 	slug,
 	backgroundColor,
+	entered = true,
 }: GraphCanvasProps) {
 	const [mode, setMode] = useState<FocusMode>(initialMode)
 	const [graphData, setGraphData] = useState<GraphData>(initialData)
@@ -117,24 +121,21 @@ export default function GraphCanvas({
 					className="absolute inset-0 flex items-center justify-center"
 					style={{ backgroundColor: backgroundColor ?? "#000011" }}
 				>
-					<div className="text-center">
-						<div className="relative w-16 h-16 mx-auto mb-6">
-							<div className="absolute inset-0 rounded-full border-2 border-white/10" />
-							<div className="absolute inset-0 rounded-full border-2 border-t-purple-500 border-r-transparent border-b-transparent border-l-transparent animate-spin" />
-						</div>
-						<p className="text-white/50 text-sm font-medium tracking-wider">
-							Loading...
-						</p>
-					</div>
+					<StarCluster label="Gathering stars" />
 				</div>
 			) : (
-				<KnowledgeGraph3D
-					graphData={graphData}
-					onNodeClick={onNodeClick}
-					focusNodeId={focusNodeId}
-					backgroundColor={backgroundColor}
-					colorByType
-				/>
+				<div
+					className="absolute inset-0 transition-opacity duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+					style={{ opacity: entered ? 1 : 0 }}
+				>
+					<KnowledgeGraph3D
+						graphData={graphData}
+						onNodeClick={onNodeClick}
+						focusNodeId={focusNodeId}
+						backgroundColor={backgroundColor}
+						colorByType
+					/>
+				</div>
 			)}
 		</div>
 	)
