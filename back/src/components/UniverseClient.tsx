@@ -6,16 +6,19 @@ import Link from "next/link"
 import KnowledgeGraph3D from "@/components/graph/KnowledgeGraph3D"
 import { BRAND, BRAND_TAGLINE } from "@/lib/brand"
 import { DEFAULT_THEME } from "@/lib/themes"
+import { PREVIEW_PREFIX } from "@/lib/preview-universe"
 import type { GraphData, GraphNode } from "@/lib/types"
 
 export default function UniverseClient({
 	data,
 	loggedIn = false,
 	view = "all",
+	previewCount = 0,
 }: {
 	data: GraphData
 	loggedIn?: boolean
 	view?: "all" | "network"
+	previewCount?: number
 }) {
 	const router = useRouter()
 	// Sinematik giriş: siyah → yıldızlar belirir → başlık yükselir.
@@ -29,6 +32,8 @@ export default function UniverseClient({
 	function handleNodeClick(node: GraphNode) {
 		// node.id = slug → o kişinin galaksisine git
 		const slug = String(node.id)
+		// Önizleme yıldızlarının karşılığı yok — tıklayınca 404'e gitmesin.
+		if (slug.startsWith(PREVIEW_PREFIX)) return
 		if (slug) router.push(`/u/${slug}`)
 	}
 
@@ -36,8 +41,9 @@ export default function UniverseClient({
 	const accent = DEFAULT_THEME.accent
 
 	return (
+		// w-screen (=100vw) dikey kaydırma çubuğu varken yatay taşma yaratabiliyor.
 		<div
-			className="relative w-screen h-screen overflow-hidden"
+			className="relative w-full h-screen overflow-hidden"
 			style={
 				{
 					backgroundColor: DEFAULT_THEME.bg,
@@ -155,6 +161,17 @@ export default function UniverseClient({
 					</div>
 				)}
 			</div>
+
+			{/* Önizleme modu göstergesi — sahte veriyi gerçek sanma diye. */}
+			{previewCount > 0 && (
+				<div className="glass fixed bottom-5 left-1/2 -translate-x-1/2 z-40 rounded-full px-4 py-2 text-xs text-[var(--text-2)] whitespace-nowrap">
+					<span className="text-amber-300">●</span> Density preview —{" "}
+					{previewCount} mock galaxies, not saved.{" "}
+					<Link href="/" className="focus-ring underline">
+						exit
+					</Link>
+				</div>
+			)}
 
 			{/* Boş evren — artık çıkışı olan bir davet */}
 			{empty && (

@@ -6,6 +6,7 @@ import { follows } from "@/db/schema"
 import { BRAND, BRAND_TAGLINE } from "@/lib/brand"
 import { getWorkspaceByDomain, getOptionalWorkspace } from "@/lib/tenant"
 import { getGraphData, getUniverseGraph } from "@/actions/graph"
+import { buildPreviewUniverse, parsePreviewParam } from "@/lib/preview-universe"
 import { getTheme } from "@/lib/themes"
 import HomeClient from "@/app/home-client"
 import UniverseClient from "@/components/UniverseClient"
@@ -37,7 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootPage({
 	searchParams,
 }: {
-	searchParams: Promise<{ view?: string }>
+	searchParams: Promise<{ view?: string; preview?: string }>
 }) {
 	const host = (await headers()).get("host") ?? ""
 	const ws = await getWorkspaceByDomain(host)
@@ -57,8 +58,12 @@ export default async function RootPage({
 	}
 
 	const me = await getOptionalWorkspace()
-	const view = (await searchParams).view
+	const sp = await searchParams
+	const view = sp.view
 	const networkView = view === "network" && Boolean(me)
+	// ?preview=<n> → yoğunluk önizlemesi. Yalnızca bellekte üretilir, DB'ye
+	// hiçbir şey yazılmaz; parametre yokken kimse bu veriyi görmez.
+	const previewCount = parsePreviewParam(sp.preview)
 
 	let universe
 	if (networkView && me) {
@@ -73,11 +78,20 @@ export default async function RootPage({
 		universe = await getUniverseGraph()
 	}
 
+	if (previewCount > 0) {
+		const mock = buildPreviewUniverse(previewCount)
+		universe = {
+			nodes: [...universe.nodes, ...mock.nodes],
+			links: [...universe.links, ...mock.links],
+		}
+	}
+
 	return (
 		<UniverseClient
 			data={universe}
 			loggedIn={Boolean(me)}
 			view={networkView ? "network" : "all"}
+			previewCount={previewCount}
 		/>
 	)
 }
