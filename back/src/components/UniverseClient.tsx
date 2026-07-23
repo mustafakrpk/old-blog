@@ -37,8 +37,7 @@ export default function UniverseClient({
 		if (slug) router.push(`/u/${slug}`)
 	}
 
-	// "Boş" = gerçek galaksi yok. Dekoratif arka plan yıldızları sayılmaz.
-	const empty = data.nodes.every((n) => n.decorative)
+	const empty = data.nodes.length === 0
 	const accent = DEFAULT_THEME.accent
 
 	return (

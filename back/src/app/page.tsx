@@ -6,11 +6,7 @@ import { follows } from "@/db/schema"
 import { BRAND, BRAND_TAGLINE } from "@/lib/brand"
 import { getWorkspaceByDomain, getOptionalWorkspace } from "@/lib/tenant"
 import { getGraphData, getUniverseGraph } from "@/actions/graph"
-import {
-	buildPreviewUniverse,
-	parsePreviewParam,
-	BACKDROP_COUNT,
-} from "@/lib/preview-universe"
+import { buildPreviewUniverse, parsePreviewParam } from "@/lib/preview-universe"
 import { getTheme } from "@/lib/themes"
 import HomeClient from "@/app/home-client"
 import UniverseClient from "@/components/UniverseClient"
@@ -83,20 +79,10 @@ export default async function RootPage({
 	}
 
 	if (previewCount > 0) {
-		// Açık density testi — büyük, bağlı, uyarı rozetli.
 		const mock = buildPreviewUniverse(previewCount)
 		universe = {
 			nodes: [...universe.nodes, ...mock.nodes],
 			links: [...universe.links, ...mock.links],
-		}
-	} else if (!networkView) {
-		// Varsayılan "all" görünümü: gerçek galaksilerin arkasına soluk bir
-		// yıldız alanı serpiştir ki evren boş görünmesin. Bunlar tıklanamaz
-		// ve DB'ye yazılmaz; "click a star" hâlâ gerçek galaksilere işaret eder.
-		const backdrop = buildPreviewUniverse(BACKDROP_COUNT, { decorative: true })
-		universe = {
-			nodes: [...universe.nodes, ...backdrop.nodes],
-			links: universe.links,
 		}
 	}
 
