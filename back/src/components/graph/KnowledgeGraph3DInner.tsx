@@ -78,6 +78,8 @@ export default function KnowledgeGraph3DInner({
 	const handleNodeClick = useCallback(
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		(node: any) => {
+			// Dekoratif arka plan yıldızı — tıklamayı yok say (kamera bile oynamasın).
+			if (node.decorative) return
 			const distance = 60
 			const distRatio =
 				1 + distance / Math.hypot(node.x, node.y, node.z || 0)
@@ -107,9 +109,19 @@ export default function KnowledgeGraph3DInner({
 							nodeColor: (node: object) =>
 								TYPE_COLORS[(node as GraphNode).type] || "#8b8b9a",
 						}
-					: { nodeAutoColorBy: "category" })}
+					: {
+							nodeAutoColorBy: "category",
+							// Gerçek node'lar auto-renk (n.color) kalır; dekoratif olanlar
+							// soluk lacivert-gri → arka plana çekilir, öndekilerle yarışmaz.
+							nodeColor: (node: object) => {
+								const n = node as GraphNode
+								return n.decorative ? "#2b2f45" : n.color || "#8b8b9a"
+							},
+						})}
 				nodeLabel={(node: object) => {
 					const n = node as GraphNode
+					// Dekoratif yıldızların adı yok — hover ipucu göstermeyiz.
+					if (n.decorative) return ""
 					if (nodeLabelHtml) return nodeLabelHtml(n)
 					const color = TYPE_COLORS[n.type] || "#fff"
 					return `<b>${n.title}</b><br/><span style="color:${color}">${n.type}</span>`

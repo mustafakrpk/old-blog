@@ -7,6 +7,10 @@ export interface GraphNode {
 	cluster: string
 	visibility: string
 	val: number
+	// Dekoratif arka plan yıldızı (sahte, tıklanamaz, soluk çizilir).
+	decorative?: boolean
+	// react-force-graph nodeAutoColorBy'ın çalışma anında yazdığı renk.
+	color?: string
 	content?: string | null
 	meta?: {
 		description?: string

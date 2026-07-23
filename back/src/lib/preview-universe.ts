@@ -14,6 +14,9 @@ export const PREVIEW_PREFIX = "preview-"
 
 export const PREVIEW_MAX = 1200
 
+/** Ana sayfada gerçek galaksilerin arkasında sürekli duran soluk yıldız sayısı. */
+export const BACKDROP_COUNT = 260
+
 const ADJECTIVES = [
 	"Ashen", "Hollow", "Gilded", "Sunken", "Verdant", "Obsidian", "Crimson",
 	"Frostbound", "Emberlit", "Whispering", "Shattered", "Eternal", "Drowned",
@@ -64,16 +67,29 @@ function nameFor(rand: () => number): string {
 	return `${realm} ${noun}`
 }
 
+interface PreviewOptions {
+	/** Arka plan dokusu modu: küçük, soluk, tıklanamaz, bağsız yıldızlar. */
+	decorative?: boolean
+}
+
 /**
- * n adet sahte galaksi + aralarında gerçekçi bağlar üretir.
- * Boyut dağılımı kasıtlı olarak güç yasasına yakın: çoğu küçük, birkaçı dev —
- * gerçek bir platformda olacağı gibi.
+ * n adet sahte galaksi üretir.
+ *
+ * - Varsayılan (density test): güç yasasına yakın boyut dağılımı + kavram
+ *   topluluklarından doğan bağlar. Gerçek bir platformda olacağı gibi.
+ * - decorative: gerçek galaksilerin arkasında soluk bir yıldız alanı. Küçük,
+ *   bağsız ve tıklanamaz — "click a star" metni gerçeklere işaret etsin diye.
  */
-export function buildPreviewUniverse(n: number): GraphData {
+export function buildPreviewUniverse(
+	n: number,
+	opts: PreviewOptions = {},
+): GraphData {
 	const count = Math.max(0, Math.min(PREVIEW_MAX, Math.floor(n)))
 	if (count === 0) return { nodes: [], links: [] }
 
-	const rand = makeRandom(count * 2654435761)
+	const decorative = opts.decorative ?? false
+	// Farklı tohum → dekoratif alan density testinden bağımsız görünür.
+	const rand = makeRandom((count + (decorative ? 777 : 0)) * 2654435761)
 	const nodes: GraphNode[] = []
 	const communityOf: string[] = []
 
@@ -82,8 +98,11 @@ export function buildPreviewUniverse(n: number): GraphData {
 		const concept = CONCEPTS[Math.floor(rand() * CONCEPTS.length)]
 		communityOf.push(concept)
 
-		// val = "node sayısı" → yıldız boyutu. rand^2.4 uzun kuyruk verir.
-		const val = 1 + Math.floor(Math.pow(rand(), 2.4) * 140)
+		// val = "node sayısı" → yıldız boyutu. Dekoratif olanlar küçük ve tek
+		// düze yakın (uzak yıldız hissi); density testinde uzun kuyruklu.
+		const val = decorative
+			? 0.4 + rand() * 1.6
+			: 1 + Math.floor(Math.pow(rand(), 2.4) * 140)
 
 		nodes.push({
 			id,
@@ -92,10 +111,14 @@ export function buildPreviewUniverse(n: number): GraphData {
 			cluster: id, // renk kişi başına — gerçek evrendeki davranışın aynısı
 			visibility: "professional",
 			val,
+			decorative,
 			content: null,
 			meta: { category: concept },
 		})
 	}
+
+	// Dekoratif alan saf zemin dokusu — bağ çizmeyiz ki gerçek ağla yarışmasın.
+	if (decorative) return { nodes, links: [] }
 
 	// Bağlar: aynı kavram topluluğu içinde yoğun, topluluklar arası seyrek.
 	const links: GraphData["links"] = []
